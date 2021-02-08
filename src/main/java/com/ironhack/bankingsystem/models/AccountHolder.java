@@ -1,7 +1,4 @@
-package com.ironhack.bankingsystem.models.users;
-
-import com.ironhack.bankingsystem.models.account.*;
-import com.ironhack.bankingsystem.models.embeds.*;
+package com.ironhack.bankingsystem.models;
 
 import javax.persistence.*;
 import javax.validation.*;
@@ -33,9 +30,9 @@ public class AccountHolder extends User{
     })
     private Address mailingAddress;
 
-    @OneToMany(mappedBy = "primaryOwner")
+    @OneToMany(mappedBy = "accountHolder")
     private List<Account> primaryAccounts;
-    @OneToMany(mappedBy = "secondaryOwner")
+    @OneToMany(mappedBy = "secondaryAccountHolder")
     private List<Account> secondaryAccounts;
 
     public AccountHolder() {

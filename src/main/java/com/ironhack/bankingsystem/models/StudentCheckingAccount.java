@@ -1,14 +1,12 @@
-package com.ironhack.bankingsystem.models.account;
+package com.ironhack.bankingsystem.models;
 
 import com.ironhack.bankingsystem.enums.*;
-import com.ironhack.bankingsystem.models.*;
-import com.ironhack.bankingsystem.models.users.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
 @Entity
-@PrimaryKeyJoinColumn(name = "id")
+@PrimaryKeyJoinColumn(name = "accountId")
 @Table(name = "student_checking_account")
 public class StudentCheckingAccount extends Account{
     @Enumerated

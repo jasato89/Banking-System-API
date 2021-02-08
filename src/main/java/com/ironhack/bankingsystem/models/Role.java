@@ -1,4 +1,4 @@
-package com.ironhack.bankingsystem.models.users;
+package com.ironhack.bankingsystem.models;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;

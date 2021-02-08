@@ -1,7 +1,5 @@
 package com.ironhack.bankingsystem.models;
 
-import com.ironhack.bankingsystem.models.account.*;
-
 import javax.persistence.*;
 import java.time.*;
 

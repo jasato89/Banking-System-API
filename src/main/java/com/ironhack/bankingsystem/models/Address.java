@@ -1,4 +1,4 @@
-package com.ironhack.bankingsystem.models.embeds;
+package com.ironhack.bankingsystem.models;
 
 import org.hibernate.annotations.*;
 

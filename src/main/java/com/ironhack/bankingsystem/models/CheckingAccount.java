@@ -1,20 +1,27 @@
-package com.ironhack.bankingsystem.models.account;
+package com.ironhack.bankingsystem.models;
 
-import com.ironhack.bankingsystem.models.*;
 import com.ironhack.bankingsystem.enums.*;
-import com.ironhack.bankingsystem.models.users.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
 @Entity
-@PrimaryKeyJoinColumn(name = "id")
-@Table(name = "checking_account")
+@PrimaryKeyJoinColumn(name = "accountId")
 public class CheckingAccount extends Account {
-
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "currency", column = @Column(name = "minimum_balance_currency")),
+            @AttributeOverride(name = "amount", column = @Column(name = "minimum_balance_amount"))
+    })
     private Money minimumBalance;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "currency", column = @Column(name = "monthly_maintenance_fee_currency")),
+            @AttributeOverride(name = "amount", column = @Column(name = "monthly_maintenance_fee_amount"))
+    })
     private Money monthlyMaintenanceFee;
-    @Enumerated
+
+    @Enumerated(value = EnumType.STRING)
     private Status status;
 
     public CheckingAccount() {

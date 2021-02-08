@@ -1,8 +1,5 @@
-package com.ironhack.bankingsystem.models.account;
+package com.ironhack.bankingsystem.models;
 
-import com.ironhack.bankingsystem.models.*;
-import com.ironhack.bankingsystem.models.users.*;
-import net.bytebuddy.implementation.bind.annotation.*;
 import org.hibernate.annotations.*;
 
 import javax.persistence.*;
@@ -18,13 +15,14 @@ import java.time.*;
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long accountId;
     private Money balance;
     private String secretKey;
     @ColumnDefault(value = "false")
     private boolean isPenalized;
     @ManyToOne
     @NotNull
+    @Valid
     @JoinColumn(name = "account_holder")
     private AccountHolder accountHolder;
     @ManyToOne
@@ -33,8 +31,8 @@ public class Account {
     private AccountHolder secondaryAccountHolder;
     private LocalDateTime creationDate;
 
-    public Account(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder) {
-        this.id = id;
+    public Account(Long accountId, Money balance, String secretKey, @NotNull AccountHolder accountHolder) {
+        this.accountId = accountId;
         this.balance = balance;
         this.secretKey = secretKey;
         this.accountHolder = accountHolder;
@@ -42,8 +40,8 @@ public class Account {
 
     }
 
-    public Account(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, AccountHolder secondaryAccountHolder) {
-        this.id = id;
+    public Account(Long accountId, Money balance, String secretKey, @NotNull AccountHolder accountHolder, AccountHolder secondaryAccountHolder) {
+        this.accountId = accountId;
         this.balance = balance;
         this.secretKey = secretKey;
         this.accountHolder = accountHolder;
@@ -52,8 +50,8 @@ public class Account {
 
     }
 
-    public Account(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, AccountHolder secondaryAccountHolder) {
-        this.id = id;
+    public Account(Long accountId, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, AccountHolder secondaryAccountHolder) {
+        this.accountId = accountId;
         this.balance = balance;
         this.secretKey = secretKey;
         this.isPenalized = isPenalized;
@@ -62,8 +60,8 @@ public class Account {
         creationDate = LocalDateTime.now();
     }
 
-    public Account(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder) {
-        this.id = id;
+    public Account(Long accountId, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder) {
+        this.accountId = accountId;
         this.balance = balance;
         this.secretKey = secretKey;
         this.isPenalized = isPenalized;
@@ -74,12 +72,12 @@ public class Account {
     public Account(){creationDate = LocalDateTime.now();}
 
 
-    public Long getId() {
-        return id;
+    public Long getAccountId() {
+        return accountId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setAccountId(Long id) {
+        this.accountId = id;
     }
 
     public Money getBalance() {
