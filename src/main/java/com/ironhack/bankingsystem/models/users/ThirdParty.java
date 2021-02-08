@@ -5,9 +5,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "third_party")
 public class ThirdParty extends User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @PrimaryKeyJoinColumn(name = "id")
     private String name;
     private String hashKey;
 
@@ -18,13 +16,6 @@ public class ThirdParty extends User {
     public ThirdParty() {
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
