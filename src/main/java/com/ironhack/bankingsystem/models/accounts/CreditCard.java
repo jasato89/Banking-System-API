@@ -1,4 +1,7 @@
-package com.ironhack.bankingsystem.models;
+package com.ironhack.bankingsystem.models.accounts;
+
+import com.ironhack.bankingsystem.models.*;
+import com.ironhack.bankingsystem.models.users.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;

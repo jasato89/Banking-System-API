@@ -1,4 +1,4 @@
-package com.ironhack.bankingsystem.repository;
+package com.ironhack.bankingsystem.repositories;
 
 import com.ironhack.bankingsystem.models.*;
 import org.springframework.data.jpa.repository.*;
