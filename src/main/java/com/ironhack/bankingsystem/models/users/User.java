@@ -1,13 +1,12 @@
 package com.ironhack.bankingsystem.models.users;
 
-import com.sun.istack.*;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.util.*;
 
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "users")
 public class User {
     @Id
@@ -17,16 +16,20 @@ public class User {
     private String username;
     @NotNull(message = "Password required")
     private String password;
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Role> roles = new HashSet<>();
+
+    public User() {
+    }
 
     public User(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password) {
         this.username = username;
         this.password = password;
+
     }
 
-    public User() {
-    }
+
 
     public Long getId() {
         return id;

@@ -11,11 +11,13 @@ import java.util.*;
 
 @Entity
 @Table(name = "account_holders")
+@PrimaryKeyJoinColumn(name = "id")
 public class AccountHolder extends User{
-    @NotBlank(message = "Name required")
-    private String name;
+
     @NotNull(message = "Date of birth required")
     private LocalDateTime dateOfBirth;
+    @NotNull(message = "Name required")
+    private String name;
     @Valid
     @Embedded
     @NotNull(message = "Address required")
@@ -41,17 +43,18 @@ public class AccountHolder extends User{
 
     public AccountHolder(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password, @NotBlank(message = "Name required") String name, @NotNull(message = "Date of birth required") LocalDateTime dateOfBirth, @Valid @NotNull(message = "Address required") Address address) {
         super(username, password);
-        this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = address;
+        this.name = name;
     }
 
     public AccountHolder(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password, @NotBlank(message = "Name required") String name, @NotNull(message = "Date of birth required") LocalDateTime dateOfBirth, @Valid @NotNull(message = "Address required") Address primaryAddress, @Valid Address mailingAddress) {
         super(username, password);
-        this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;
+        this.name = name;
+
     }
 
     public String getName() {
