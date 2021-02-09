@@ -1,4 +1,4 @@
-package com.ironhack.bankingsystem.models;
+package com.ironhack.bankingsystem.utils;
 
 import javax.persistence.*;
 import java.math.*;

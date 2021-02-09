@@ -1,6 +1,7 @@
 package com.ironhack.bankingsystem.models;
 
 import com.ironhack.bankingsystem.models.accounts.*;
+import com.ironhack.bankingsystem.utils.*;
 
 import javax.persistence.*;
 import java.time.*;
@@ -24,11 +25,12 @@ public class Transaction {
         timeStamp = LocalDateTime.now();
     }
 
-    public Transaction(Account senderId, Account recipientId, LocalDateTime timeStamp, Money amount) {
+    public Transaction(Account senderId, Account recipientId,  Money amount) {
         this.sender = senderId;
         this.recipitent = recipientId;
         this.timeStamp = timeStamp;
         this.amount = amount;
+        timeStamp = LocalDateTime.now();
     }
 
     public Long getId() {

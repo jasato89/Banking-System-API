@@ -1,7 +1,7 @@
 package com.ironhack.bankingsystem.models.accounts;
 
-import com.ironhack.bankingsystem.models.*;
 import com.ironhack.bankingsystem.models.users.*;
+import com.ironhack.bankingsystem.utils.*;
 import org.hibernate.annotations.*;
 
 import javax.persistence.*;
