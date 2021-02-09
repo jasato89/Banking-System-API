@@ -19,10 +19,9 @@ public class TransactionController implements TransactionControllerInterface {
     @PostMapping("/transfer")
     @ResponseStatus(HttpStatus.OK)
     public Money sendMoney(@RequestBody @Valid TransactionDTO transactionDTO) {
-        return transactionService.sendMoney(TransactionDTO);
+        return transactionService.sendMoney(transactionDTO);
     }
 
 
-
-    }
 }
+
