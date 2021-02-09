@@ -4,15 +4,19 @@ import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
 import org.springframework.stereotype.*;
 
+import java.util.*;
+
 @Service
 public class StudentCheckingAccountService implements StudentCheckingAccountServiceInterface {
-    @Override
     public StudentCheckingAccount createStudentCheckingAccount(StudentCheckingAccount studentCheckingAccount) {
         return null;
     }
 
-    @Override
-    public StudentCheckingAccount updateStudentCheckingAccount(StudentCheckingAccount studentCheckingAccount) {
+    public StudentCheckingAccount updateStudentCheckingAccount(Long id, StudentCheckingAccount studentCheckingAccount) {
+        return null;
+    }
+
+    public List<StudentCheckingAccount> getAllStudentCheckingAccounts() {
         return null;
     }
 }

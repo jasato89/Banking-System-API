@@ -17,7 +17,7 @@ public class AccountHolderService implements AccountHolderServiceInterface {
         return null;
     }
 
-    public AccountHolder updateDetails(AccountHolder account) {
+    public AccountHolder updateDetails(Long id, AccountHolder account) {
         return null;
     }
 }

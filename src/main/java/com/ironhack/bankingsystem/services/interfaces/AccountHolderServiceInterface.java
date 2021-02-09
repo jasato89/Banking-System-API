@@ -8,7 +8,7 @@ public interface AccountHolderServiceInterface {
 
     List<AccountHolder> getAllAccountHolders();
     AccountHolder createAccountHolder (AccountHolder accountHolder);
-    AccountHolder updateDetails (AccountHolder account);
+    AccountHolder updateDetails(Long id, AccountHolder account);
 
 
 

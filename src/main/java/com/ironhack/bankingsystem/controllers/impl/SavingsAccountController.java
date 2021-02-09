@@ -2,15 +2,36 @@ package com.ironhack.bankingsystem.controllers.impl;
 
 import com.ironhack.bankingsystem.controllers.interfaces.*;
 import com.ironhack.bankingsystem.models.accounts.*;
+import com.ironhack.bankingsystem.services.interfaces.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.*;
+import java.util.*;
 
 @RestController
 public class SavingsAccountController implements SavingsAccountControllerInterface {
-    public SavingsAccount createSavingsAccount(SavingsAccount savingsAccount) {
-        return null;
+
+    @Autowired
+    SavingsAccountServiceInterface savingsAccountService;
+
+
+    @GetMapping("/admin/savings-accounts")
+    @ResponseStatus(HttpStatus.OK)
+    public List<SavingsAccount> getAllSavingsAccount() {
+        return savingsAccountService.getAllSavingsAccounts();
     }
 
-    public SavingsAccount updateSavingsAccount(SavingsAccount savingsAccount) {
-        return null;
+    @PostMapping("/admin/savings-account/new")
+
+    @ResponseStatus(HttpStatus.CREATED)
+    public SavingsAccount createSavingsAccount(@RequestBody @Valid SavingsAccount savingsAccount) {
+        return savingsAccountService.createSavingsAccount(savingsAccount);
+    }
+
+    @PostMapping("/admin/savings-account/{id}")
+    public SavingsAccount updateSavingsAccount(@PathVariable Long id, @RequestBody SavingsAccount savingsAccount) {
+        return savingsAccountService.updateSavingsAccount(id, savingsAccount);
     }
 }
