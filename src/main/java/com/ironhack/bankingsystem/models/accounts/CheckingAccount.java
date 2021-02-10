@@ -5,11 +5,12 @@ import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.utils.*;
 
 import javax.persistence.*;
+import javax.validation.*;
 import javax.validation.constraints.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
-public class CheckingAccount extends Account {
+public class CheckingAccount extends Checking {
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "currency", column = @Column(name = "minimum_balance_currency")),
@@ -30,60 +31,11 @@ public class CheckingAccount extends Account {
 
     }
 
-    public CheckingAccount(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
-        super(id, balance, secretKey, accountHolder);
-        this.minimumBalance = minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
-        this.status = Status.ACTIVE;
-    }
 
-    public CheckingAccount(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
-        super(id, balance, secretKey, accountHolder, secondaryAccountHolder);
-        this.minimumBalance = minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
-        this.status = Status.ACTIVE;
-    }
-
-    public CheckingAccount(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
-        super(id, balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
-        this.minimumBalance = minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
-        this.status = Status.ACTIVE;
-    }
-
-    public CheckingAccount(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
-        super(id, balance, secretKey, isPenalized, accountHolder);
-        this.minimumBalance = minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
-        this.status = Status.ACTIVE;
-    }
-
-    public CheckingAccount(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, Money minimumBalance, Money monthlyMaintenanceFee, Status status) {
-        super(id, balance, secretKey, accountHolder);
-        this.minimumBalance = minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
-        this.status = status;
-    }
-
-    public CheckingAccount(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee, Status status) {
-        super(id, balance, secretKey, accountHolder, secondaryAccountHolder);
-        this.minimumBalance = minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
-        this.status = status;
-    }
-
-    public CheckingAccount(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee, Status status) {
-        super(id, balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
-        this.minimumBalance = minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
-        this.status = status;
-    }
-
-    public CheckingAccount(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, Money minimumBalance, Money monthlyMaintenanceFee, Status status) {
-        super(id, balance, secretKey, isPenalized, accountHolder);
-        this.minimumBalance = minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
-        this.status = status;
+    public CheckingAccount(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
+        super(balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
+        setMinimumBalance(minimumBalance);
+        setMonthlyMaintenanceFee(monthlyMaintenanceFee);
     }
 
     public Money getMinimumBalance() {
@@ -91,7 +43,7 @@ public class CheckingAccount extends Account {
     }
 
     public void setMinimumBalance(Money minimumBalance) {
-        this.minimumBalance = minimumBalance;
+        this.minimumBalance = minimumBalance.equals(null) ? Constants.CHECKING_ACC_MIN_BALANCE : minimumBalance;
     }
 
     public Money getMonthlyMaintenanceFee() {
@@ -99,7 +51,7 @@ public class CheckingAccount extends Account {
     }
 
     public void setMonthlyMaintenanceFee(Money monthlyMaintenanceFee) {
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
+        this.monthlyMaintenanceFee = monthlyMaintenanceFee.equals(null) ? Constants.CHECKING_ACC_DEFFAULT_MONTHLY_FEE : monthlyMaintenanceFee;
     }
 
     public Status getStatus() {

@@ -13,5 +13,4 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findBySecondaryAccountHolderName(String name);
     List<Account> findAccountsByAccountHolderId(Long id);
     List<Account> findAccountsBySecondaryAccountHolderId(Long id);
-    List<Account> findAccountsByAccountHolderIdOrSecondaryAccountHolderId(Long id);
 }

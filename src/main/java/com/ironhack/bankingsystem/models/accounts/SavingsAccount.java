@@ -3,54 +3,50 @@ package com.ironhack.bankingsystem.models.accounts;
 import com.ironhack.bankingsystem.enums.*;
 import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.utils.*;
-import org.hibernate.annotations.*;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.*;
 import javax.validation.constraints.*;
+import java.math.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
 @Table(name = "savings_account")
-public class SavingsAccount extends Account{
-
-    private double interestRate;
-    @ColumnDefault("Status.ACTIVE")
+public class SavingsAccount extends Account {
+    @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5")
+    @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0")
+    private BigDecimal interestRate;
+    @DecimalMax(value = "1000", message = "Minimum balance must be below 0.5")
+    @DecimalMin(value = "100", message = "Minimum balance must be above 0 or 0")
+    private BigDecimal minimumBalance;
     private Status status;
 
-    public SavingsAccount() {}
+    public SavingsAccount() {status = Status.ACTIVE;}
 
-    public SavingsAccount(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, double interestRate, Status status) {
-        super(id, balance, secretKey, accountHolder);
-        this.interestRate = interestRate;
-        this.status = status;
+    public SavingsAccount(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5") @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0") BigDecimal interestRate, BigDecimal minimumBalance) {
+        super(balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
+        setInterestRate(interestRate);
+        setMinimumBalance(minimumBalance);
+
     }
 
-    public SavingsAccount(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, AccountHolder secondaryAccountHolder, double interestRate, Status status) {
-        super(id, balance, secretKey, accountHolder, secondaryAccountHolder);
-        this.interestRate = interestRate;
-        this.status = status;
+    public BigDecimal getMinimumBalance() {
+        return minimumBalance;
     }
 
-    public SavingsAccount(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, AccountHolder secondaryAccountHolder, double interestRate, Status status) {
-        super(id, balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
-        this.interestRate = interestRate;
-        this.status = status;
+    public void setMinimumBalance(BigDecimal minimumBalance) {
+        this.minimumBalance = minimumBalance.equals(null) ? Constants.SAVINGS_ACC_DEFAULT_MIN_BALANCE : minimumBalance;
     }
 
-    public SavingsAccount(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, double interestRate, Status status) {
-        super(id, balance, secretKey, isPenalized, accountHolder);
-        this.interestRate = interestRate;
-        this.status = status;
-    }
-
-    public double getInterestRate() {
+    public BigDecimal getInterestRate() {
         return interestRate;
     }
 
-    public void setInterestRate(double interestRate) {
-        this.interestRate = interestRate;
+    public void setInterestRate(BigDecimal interestRate) {
+
+        this.interestRate = interestRate.equals(null) ? Constants.SAVINGS_ACC_DEFAULT_INTEREST_RATE : interestRate;;
     }
 
     public Status getStatus() {

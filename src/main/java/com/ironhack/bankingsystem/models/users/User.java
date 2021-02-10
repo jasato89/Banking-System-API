@@ -1,5 +1,7 @@
 package com.ironhack.bankingsystem.models.users;
 
+import com.fasterxml.jackson.annotation.*;
+
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.util.*;
@@ -17,6 +19,7 @@ public class User {
     @NotNull(message = "Password required")
     private String password;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Role> roles = new HashSet<>();
 

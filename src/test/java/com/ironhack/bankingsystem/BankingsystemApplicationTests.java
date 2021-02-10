@@ -24,7 +24,7 @@ class BankingsystemApplicationTests {
     @Autowired
     ThirdPartyRepository thirdPartyRepository;
 
-
+/*
     @BeforeEach
     void setUp() {
 
@@ -48,7 +48,7 @@ class BankingsystemApplicationTests {
         accountHolderRepository.deleteAll();
 
 
-    }
+    }*/
 
     @Test
     void contextLoads() {

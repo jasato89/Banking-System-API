@@ -8,15 +8,15 @@ import javax.persistence.*;
 import javax.validation.*;
 import javax.validation.constraints.*;
 
-@Entity
-@PrimaryKeyJoinColumn(name = "accountId")
-public class StudentCheckingAccount extends Checking{
+
+@Table(name = "student_checking_account")
+public class Checking extends Account {
     @Enumerated
     private Status status;
 
-    public StudentCheckingAccount(){status = Status.ACTIVE;}
+    public Checking(){}
 
-    public StudentCheckingAccount(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder) {
+    public Checking(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder) {
         super(balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
     }
 

@@ -6,6 +6,7 @@ import com.ironhack.bankingsystem.services.interfaces.*;
 import com.ironhack.bankingsystem.utils.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
@@ -102,11 +103,11 @@ public class AccountService implements AccountServiceInterface {
     }
 
     //TODO
-    public void getBalance() {
+    public void getBalance(UserDetails userDetails) {
 
     }
     //TODO
-    public Account updateDetails() {
+    public Account updateDetails(UserDetails userDetails) {
         return null;
     }
 }

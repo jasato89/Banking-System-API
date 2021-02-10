@@ -37,20 +37,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.httpBasic();
-        http.csrf().ignoringAntMatchers("/blogpost/*")
-                .ignoringAntMatchers("/blogpost/add")
-                .ignoringAntMatchers("/author/*")
-                .ignoringAntMatchers("/author");
 
         http.authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/author/*").hasRole("ADMIN")
-                .antMatchers(HttpMethod.POST, "/blogpost/*").hasAnyRole("ADMIN", "CONTRIBUTOR")
-                .antMatchers(HttpMethod.PUT, "/author/*").hasAnyRole("ADMIN", "CONTRIBUTOR")
-                .antMatchers(HttpMethod.PATCH, "/author/*").hasAnyRole("ADMIN", "CONTRIBUTOR")
-                .antMatchers(HttpMethod.PUT, "/blogpost/*").hasAnyRole("ADMIN", "CONTRIBUTOR").antMatchers(HttpMethod.PUT, "/author/*").hasAnyRole("ADMIN", "CONTRIBUTOR")
-                .antMatchers(HttpMethod.PATCH, "/blogpost/*").hasAnyRole("ADMIN", "CONTRIBUTOR")
-                .antMatchers(HttpMethod.DELETE, "/author/*").hasRole("ADMIN")
-                .antMatchers(HttpMethod.DELETE, "/blogpost/*").hasRole("ADMIN")
-                .anyRequest().permitAll();
+                .mvcMatchers(HttpMethod.GET, "/**").hasAuthority("ROLE_ADMIN")
+                .mvcMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PATCH, "/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/my-account/**").hasRole("ACCOUNTHOLDER")
+                .antMatchers(HttpMethod.PATCH, "/my-account/**").hasRole("ACCOUNTHOLDER")
+                .antMatchers(HttpMethod.POST, "/transfer").hasAnyRole("ACCOUNTHOLDER", "THIRDPARTY");
+        http.csrf().disable();
+
+
     }
 }

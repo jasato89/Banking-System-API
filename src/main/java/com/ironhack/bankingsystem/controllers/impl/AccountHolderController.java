@@ -15,7 +15,7 @@ public class AccountHolderController implements AccountHolderControllerInterface
     @Autowired
     AccountHolderServiceInterface accountHolderService;
 
-    @GetMapping("/admin/accountHolders")
+    @GetMapping("/admin/account-holders")
     public List<AccountHolder> getAllAccountHolders() {
         return accountHolderService.getAllAccountHolders();
     }

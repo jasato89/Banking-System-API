@@ -33,42 +33,13 @@ public class Account {
     private AccountHolder secondaryAccountHolder;
     private LocalDateTime creationDate;
 
-    public Account(Long accountId, Money balance, String secretKey, @NotNull AccountHolder accountHolder) {
-        this.accountId = accountId;
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.accountHolder = accountHolder;
-        creationDate = LocalDateTime.now();
-
-    }
-
-    public Account(Long accountId, Money balance, String secretKey, @NotNull AccountHolder accountHolder, AccountHolder secondaryAccountHolder) {
-        this.accountId = accountId;
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.accountHolder = accountHolder;
-        this.secondaryAccountHolder = secondaryAccountHolder;
-        creationDate = LocalDateTime.now();
-
-    }
-
-    public Account(Long accountId, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, AccountHolder secondaryAccountHolder) {
-        this.accountId = accountId;
+    public Account(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder) {
         this.balance = balance;
         this.secretKey = secretKey;
         this.isPenalized = isPenalized;
         this.accountHolder = accountHolder;
         this.secondaryAccountHolder = secondaryAccountHolder;
-        creationDate = LocalDateTime.now();
-    }
-
-    public Account(Long accountId, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder) {
-        this.accountId = accountId;
-        this.balance = balance;
-        this.secretKey = secretKey;
-        this.isPenalized = isPenalized;
-        this.accountHolder = accountHolder;
-        creationDate = LocalDateTime.now();
+        this.creationDate = LocalDateTime.now();
     }
 
     public Account(){creationDate = LocalDateTime.now();}

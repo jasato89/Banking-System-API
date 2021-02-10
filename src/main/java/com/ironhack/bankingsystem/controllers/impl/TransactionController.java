@@ -6,6 +6,8 @@ import com.ironhack.bankingsystem.services.interfaces.*;
 import com.ironhack.bankingsystem.utils.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.context.*;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.*;
@@ -19,6 +21,9 @@ public class TransactionController implements TransactionControllerInterface {
     @PostMapping("/transfer")
     @ResponseStatus(HttpStatus.OK)
     public Money sendMoney(@RequestBody @Valid TransactionDTO transactionDTO) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
         return transactionService.sendMoney(transactionDTO);
     }
 

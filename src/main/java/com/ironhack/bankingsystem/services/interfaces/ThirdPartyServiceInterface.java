@@ -7,6 +7,6 @@ import java.util.*;
 public interface ThirdPartyServiceInterface {
 
     ThirdParty createThirdParty(ThirdParty thirdParty);
-    ThirdParty updateThirdParty(Long id, @Valid ThirdParty thirdParty);
+    ThirdParty updateThirdParty(Long id,  ThirdParty thirdParty);
     List<ThirdParty> getAllThirdPartyAccounts();
 }

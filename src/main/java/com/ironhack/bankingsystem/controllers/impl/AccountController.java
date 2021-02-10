@@ -8,6 +8,8 @@ import com.ironhack.bankingsystem.services.interfaces.*;
 import com.ironhack.bankingsystem.utils.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.context.*;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.*;
@@ -20,12 +22,12 @@ public class AccountController implements AccountControllerInterface {
     AccountServiceInterface accountService;
 
     //Only accessed by ADMIN
-    @GetMapping("/admin/account/{id}")
+    @GetMapping("/admin/account/id/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Account getAccountById(@PathVariable("id") Long id) {
         return accountService.getAccountById(id);
     }
-    @GetMapping("/admin/account/{name}")
+    @GetMapping("/admin/account/id/{name}")
     @ResponseStatus(HttpStatus.OK)
     public Account getAccountByName(@PathVariable("name")@Valid AccountNameDTO name) {
         return accountService.getAccountByName(name.getName());
@@ -56,16 +58,25 @@ public class AccountController implements AccountControllerInterface {
     }
 
     @PostMapping("/admin/account/{id}/balance")
+    @ResponseStatus(HttpStatus.OK)
+
     public void updateBalance(@PathVariable("id") Long accountId,@RequestBody @Valid Money money) {
         accountService.updateBalance(accountId, money);
 
     }
 
+    @GetMapping("/my-account/balance")
     public void getBalance() {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        accountService.getBalance(userDetails);
 
     }
 
+    @PatchMapping("/my-account")
     public Account updateDetails() {
-        return null;
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return accountService.updateDetails(userDetails);
     }
 }

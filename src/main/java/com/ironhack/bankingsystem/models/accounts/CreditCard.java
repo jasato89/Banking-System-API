@@ -4,7 +4,11 @@ import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.utils.*;
 
 import javax.persistence.*;
+import javax.validation.*;
 import javax.validation.constraints.*;
+import java.math.*;
+import java.time.*;
+import java.util.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
@@ -15,44 +19,39 @@ public class CreditCard  extends Account{
             @AttributeOverride(name = "currency", column = @Column(name = "credit_limit_currency")),
             @AttributeOverride(name = "amount", column = @Column(name = "credit_limit_amount"))
     })
+    @DecimalMax(value = "10000", message = "Max credit limit must be below 10000")
+    @DecimalMin(value = "100", message = "Min credit limit must be above 100")
     private Money creditLimit;
-    private double interestRate;
+    @DecimalMax(value = "0.2", message = "Max interest rate must be below 0.2")
+    @DecimalMin(value = "0.1", message = "Min interest rate must be above 0.1")
+    private BigDecimal interestRate;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "currency", column = @Column(name = "penalty_fee_currency")),
             @AttributeOverride(name = "amount", column = @Column(name = "penalty_fee_amount"))
     })
-    private Money penaltyFee;
+    private Money penaltyFee = Constants.PENALTY_FEE;
+    private LocalDateTime lastInterestApplied;
+
 
     public CreditCard() {
     }
 
-    public CreditCard(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, Money creditLimit, double interestRate, Money penaltyFee) {
-        super(id, balance, secretKey, accountHolder);
-        this.creditLimit = creditLimit;
-        this.interestRate = interestRate;
-        this.penaltyFee = penaltyFee;
+    public CreditCard(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, @DecimalMax(value = "10000", message = "Max credit limit must be below 10000") @DecimalMin(value = "100", message = "Min credit limit must be above 100") Money creditLimit, @DecimalMax(value = "0.2", message = "Max interest rate must be below 0.2") @DecimalMin(value = "0.1", message = "Min interest rate must be above 0.1") BigDecimal interestRate) {
+        super(balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
+        setCreditLimit(creditLimit);
+        setInterestRate(interestRate);
+        lastInterestApplied = LocalDateTime.now();
+
+
     }
 
-    public CreditCard(Long id, Money balance, String secretKey, @NotNull AccountHolder accountHolder, AccountHolder secondaryAccountHolder, Money creditLimit, double interestRate, Money penaltyFee) {
-        super(id, balance, secretKey, accountHolder, secondaryAccountHolder);
-        this.creditLimit = creditLimit;
-        this.interestRate = interestRate;
-        this.penaltyFee = penaltyFee;
+    public LocalDateTime getLastInterestApplied() {
+        return lastInterestApplied;
     }
 
-    public CreditCard(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, AccountHolder secondaryAccountHolder, Money creditLimit, double interestRate, Money penaltyFee) {
-        super(id, balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
-        this.creditLimit = creditLimit;
-        this.interestRate = interestRate;
-        this.penaltyFee = penaltyFee;
-    }
-
-    public CreditCard(Long id, Money balance, String secretKey, boolean isPenalized, AccountHolder accountHolder, Money creditLimit, double interestRate, Money penaltyFee) {
-        super(id, balance, secretKey, isPenalized, accountHolder);
-        this.creditLimit = creditLimit;
-        this.interestRate = interestRate;
-        this.penaltyFee = penaltyFee;
+    public void setLastInterestApplied(LocalDateTime lastInterestApplied) {
+        this.lastInterestApplied = lastInterestApplied;
     }
 
     public Money getCreditLimit() {
@@ -63,11 +62,11 @@ public class CreditCard  extends Account{
         this.creditLimit = creditLimit;
     }
 
-    public double getInterestRate() {
+    public BigDecimal getInterestRate() {
         return interestRate;
     }
 
-    public void setInterestRate(double interestRate) {
+    public void setInterestRate(BigDecimal interestRate) {
         this.interestRate = interestRate;
     }
 
