@@ -23,7 +23,7 @@ public class CheckingAccountController implements CheckingAccountControllerInter
 
     @PostMapping("/admin/checking-account/new/")
     @ResponseStatus(HttpStatus.CREATED)
-    public CheckingAccount createCheckingAccount(@RequestBody @Valid CheckingAccount checkingAccount) {
+    public Account createCheckingAccount(@RequestBody @Valid CheckingAccount checkingAccount) {
 
         return checkingAccountService.createCheckingAccount(checkingAccount);
     }

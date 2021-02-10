@@ -5,8 +5,8 @@ import com.ironhack.bankingsystem.models.accounts.*;
 import java.util.*;
 
 public interface StudentCheckingAccountServiceInterface {
-    Checking createStudentCheckingAccount(Checking studentCheckingAccount);
-    Checking updateStudentCheckingAccount(Long id, Checking studentCheckingAccount);
+    StudentCheckingAccount createStudentCheckingAccount(StudentCheckingAccount studentCheckingAccount);
+    StudentCheckingAccount updateStudentCheckingAccount(Long id, StudentCheckingAccount studentCheckingAccount);
 
-    List<Checking> getAllStudentCheckingAccounts();
+    List<StudentCheckingAccount> getAllStudentCheckingAccounts();
 }

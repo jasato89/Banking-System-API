@@ -17,7 +17,7 @@ public class StudentCheckingAccountService implements StudentCheckingAccountServ
     @Autowired
     StudentCheckingAccountRepository studentCheckingAccountRepository;
 
-    public Checking createStudentCheckingAccount(Checking studentCheckingAccount) {
+    public StudentCheckingAccount createStudentCheckingAccount(StudentCheckingAccount studentCheckingAccount) {
 
         if (studentCheckingAccountRepository.findById(studentCheckingAccount.getAccountId()).isPresent()) {
 
@@ -27,7 +27,7 @@ public class StudentCheckingAccountService implements StudentCheckingAccountServ
         }
     }
 
-    public Checking updateStudentCheckingAccount(Long id, Checking studentCheckingAccount) {
+    public StudentCheckingAccount updateStudentCheckingAccount(Long id, StudentCheckingAccount studentCheckingAccount) {
         if (studentCheckingAccountRepository.findById(id).isPresent()) {
             studentCheckingAccount.setAccountId(studentCheckingAccountRepository.findById(id).get().getAccountId());
             return studentCheckingAccountRepository.save(studentCheckingAccount);
@@ -38,7 +38,7 @@ public class StudentCheckingAccountService implements StudentCheckingAccountServ
     }
 
 
-    public List<Checking> getAllStudentCheckingAccounts() {
+    public List<StudentCheckingAccount> getAllStudentCheckingAccounts() {
         return studentCheckingAccountRepository.findAll();
     }
 

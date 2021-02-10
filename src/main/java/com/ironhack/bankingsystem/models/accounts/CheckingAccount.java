@@ -10,7 +10,7 @@ import javax.validation.constraints.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
-public class CheckingAccount extends Checking {
+public class CheckingAccount extends Account {
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "currency", column = @Column(name = "minimum_balance_currency")),

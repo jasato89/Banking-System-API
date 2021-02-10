@@ -10,7 +10,8 @@ import javax.validation.constraints.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
-public class StudentCheckingAccount extends Checking{
+@Table(name = "student_checking_account")
+public class StudentCheckingAccount extends Account {
     @Enumerated
     private Status status;
 

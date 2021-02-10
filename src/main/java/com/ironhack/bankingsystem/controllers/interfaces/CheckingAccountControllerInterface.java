@@ -6,6 +6,6 @@ import java.util.*;
 
 public interface CheckingAccountControllerInterface {
     List<CheckingAccount> getAllCheckingAccounts();
-    CheckingAccount createCheckingAccount(CheckingAccount checkingAccount);
+    Account createCheckingAccount(CheckingAccount checkingAccount);
     CheckingAccount updateCheckingAccount(Long id, CheckingAccount checkingAccount);
 }

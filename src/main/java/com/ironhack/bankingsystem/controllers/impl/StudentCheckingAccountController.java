@@ -19,19 +19,19 @@ public class StudentCheckingAccountController implements StudentCheckingAccountC
 
     @GetMapping("/admin/student-checking-accounts")
     @ResponseStatus(HttpStatus.OK)
-    public List<Checking> getAllStudentCheckingAccounts() {
+    public List<StudentCheckingAccount> getAllStudentCheckingAccounts() {
         return studentAccountService.getAllStudentCheckingAccounts();
     }
 
     @PostMapping("/admin/student-checking-account/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public Checking createStudentCheckingAccount(@RequestBody @Valid Checking studentCheckingAccount) {
+    public StudentCheckingAccount createStudentCheckingAccount(@RequestBody @Valid StudentCheckingAccount studentCheckingAccount) {
         return studentAccountService.createStudentCheckingAccount(studentCheckingAccount);
     }
 
     @PatchMapping("/admin/student-checking-account/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Checking updateStudentCheckingAccount(@PathVariable("id") Long id, @RequestBody @Valid Checking studentCheckingAccount) {
+    public StudentCheckingAccount updateStudentCheckingAccount(@PathVariable("id") Long id, @RequestBody @Valid StudentCheckingAccount studentCheckingAccount) {
         return studentAccountService.updateStudentCheckingAccount(id, studentCheckingAccount);
     }
 }

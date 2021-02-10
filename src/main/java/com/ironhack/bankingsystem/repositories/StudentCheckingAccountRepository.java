@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.*;
 
 @Repository
-public interface StudentCheckingAccountRepository extends JpaRepository<Checking, Long> {
+public interface StudentCheckingAccountRepository extends JpaRepository<StudentCheckingAccount, Long> {
 }
