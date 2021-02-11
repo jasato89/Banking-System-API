@@ -39,13 +39,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.httpBasic();
 
         http.authorizeRequests()
-                .mvcMatchers(HttpMethod.GET, "/**").hasAuthority("ROLE_ADMIN")
+                .antMatchers(HttpMethod.GET, "/my-accounts/**").hasRole("ACCOUNT_HOLDER")
+                .antMatchers(HttpMethod.POST, "/transfer").hasAnyRole("ACCOUNT_HOLDER", "THIRDPARTY")
+                .mvcMatchers(HttpMethod.GET, "/**").hasRole("ADMIN")
                 .mvcMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PATCH, "/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.GET, "/my-account/**").hasRole("ACCOUNTHOLDER")
-                .antMatchers(HttpMethod.PATCH, "/my-account/**").hasRole("ACCOUNTHOLDER")
-                .antMatchers(HttpMethod.POST, "/transfer").hasAnyRole("ACCOUNTHOLDER", "THIRDPARTY");
+                .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN");
         http.csrf().disable();
 
 

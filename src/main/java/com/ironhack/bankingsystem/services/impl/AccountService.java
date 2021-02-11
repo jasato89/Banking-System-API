@@ -32,7 +32,6 @@ public class AccountService implements AccountServiceInterface {
     }
 
 
-
     public Money getBalanceById(Long id) {
 
         if (accountRepository.findById(id).isPresent()) {
@@ -42,7 +41,6 @@ public class AccountService implements AccountServiceInterface {
         }
 
     }
-
 
 
     public List<AccountInfoDTO> getAllAccountsFromUser(Long userId) {
@@ -76,8 +74,19 @@ public class AccountService implements AccountServiceInterface {
     }
 
     //TODO
-    public void getBalance(Long accountId, UserDetails userDetails) {
+    public Money getBalance(Long accountId, UserDetails userDetails) {
 
+        if (accountRepository.findById(accountId).isPresent()) {
+            Account account = accountRepository.findById(accountId).get();
+            if (account.getAccountHolder().getUsername().equals(userDetails.getUsername()) || account.getSecondaryAccountHolder().getUsername().equals(userDetails.getUsername())) {
+                return account.getBalance();
+            } else {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permissions for this account");
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account with id " + accountId + " doesn't exist in the database");
+
+        }
     }
 
     private AccountInfoDTO convertAccountIntoDTO(Account account) {

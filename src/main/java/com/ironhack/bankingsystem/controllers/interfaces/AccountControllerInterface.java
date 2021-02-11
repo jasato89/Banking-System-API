@@ -15,8 +15,7 @@ public interface AccountControllerInterface {
 
     void updateBalance(Long accountId, Money money);
 
-    // TODO
-    void getBalance();
+    Money getBalance(Long id);
 
 
 }

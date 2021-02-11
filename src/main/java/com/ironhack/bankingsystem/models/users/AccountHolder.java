@@ -46,6 +46,8 @@ public class AccountHolder extends User{
     private List<Account> secondaryAccounts;
 
     public AccountHolder() {
+        super.setRole("ACCOUNT_HOLDER");
+
     }
 
     public AccountHolder(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password, @NotBlank(message = "Name required") String name, @NotNull(message = "Date of birth required") LocalDateTime dateOfBirth, @Valid @NotNull(message = "Address required") Address address) {
@@ -53,7 +55,7 @@ public class AccountHolder extends User{
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = address;
         this.name = name;
-        super.setRole("ACCOUNTHOLDER");
+        super.setRole("ACCOUNT_HOLDER");
     }
 
     public AccountHolder(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password, @NotBlank(message = "Name required") String name, @NotNull(message = "Date of birth required") LocalDateTime dateOfBirth, @Valid @NotNull(message = "Address required") Address primaryAddress, @Valid Address mailingAddress) {
@@ -62,7 +64,7 @@ public class AccountHolder extends User{
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;
         this.name = name;
-        super.setRole("ACCOUNTHOLDER");
+        super.setRole("ACCOUNT_HOLDER");
 
 
     }
@@ -115,13 +117,5 @@ public class AccountHolder extends User{
         this.secondaryAccounts = secondaryAccounts;
     }
 
-    @Override
-    public String toString() {
-        return "AccountHolder{" +
-                "dateOfBirth=" + dateOfBirth +
-                ", name='" + name + '\'' +
-                ", primaryAddress=" + primaryAddress +
-                ", mailingAddress=" + mailingAddress +
-                '}';
-    }
+
 }

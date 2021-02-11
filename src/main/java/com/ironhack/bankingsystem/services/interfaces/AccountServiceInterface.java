@@ -1,7 +1,6 @@
 package com.ironhack.bankingsystem.services.interfaces;
 
 import com.ironhack.bankingsystem.controllers.dtos.*;
-import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.utils.*;
 import org.springframework.security.core.userdetails.*;
 
@@ -13,6 +12,6 @@ public interface AccountServiceInterface {
     List<AccountInfoDTO> getAllAccountsFromUser(Long userId);
     void updateBalance(Long accountId, Money money);
     // TODO
-    void getBalance(Long accountId, UserDetails userDetails);
+    Money getBalance(Long accountId, UserDetails userDetails);
 
 }

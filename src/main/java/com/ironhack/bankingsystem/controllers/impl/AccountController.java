@@ -45,17 +45,17 @@ public class AccountController implements AccountControllerInterface {
 
     @PostMapping("/admin/account/{id}/balance")
     @ResponseStatus(HttpStatus.OK)
-
     public void updateBalance(@PathVariable("id") Long accountId,@RequestBody @Valid Money money) {
         accountService.updateBalance(accountId, money);
 
     }
 
     @GetMapping("/my-accounts/{id}/balance")
-    public void getBalance(@PathVariable("id") Long accountId) {
+    public Money getBalance(@PathVariable("id") Long accountId) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
-        accountService.getBalance(accountId, userDetails);
+        System.out.println(userDetails.getUsername());
+       return accountService.getBalance(accountId, userDetails);
 
     }
 
