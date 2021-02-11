@@ -27,17 +27,7 @@ public class AccountController implements AccountControllerInterface {
     public AccountInfoDTO getAccountById(@PathVariable("id") Long id) {
         return accountService.getAccountById(id);
     }
-    @GetMapping("/admin/account/id/{name}")
-    @ResponseStatus(HttpStatus.OK)
-    public AccountInfoDTO getAccountByName(@PathVariable("name")@Valid AccountNameDTO name) {
-        return accountService.getAccountByName(name.getName());
-    }
 
-    @PostMapping("/admin/account/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Account createAccount(@RequestBody @Valid Account account) {
-        return accountService.createAccount(account);
-    }
 
     @GetMapping("/admin/account/{id}/balance")
     @ResponseStatus(HttpStatus.OK)
@@ -45,11 +35,7 @@ public class AccountController implements AccountControllerInterface {
         return accountService.getBalanceById(id);
     }
 
-    @GetMapping("/admin/account/{name}/balance")
-    @ResponseStatus(HttpStatus.OK)
-    public Money getBalanceByName(@PathVariable("name")@Valid AccountNameDTO name) {
-        return null;
-    }
+
 
     @GetMapping("/admin/account/{id}/accounts")
     @ResponseStatus(HttpStatus.OK)
@@ -65,18 +51,12 @@ public class AccountController implements AccountControllerInterface {
 
     }
 
-    @GetMapping("/my-account/balance")
-    public void getBalance() {
+    @GetMapping("/my-accounts/{id}/balance")
+    public void getBalance(@PathVariable("id") Long accountId) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
-        accountService.getBalance(userDetails);
+        accountService.getBalance(accountId, userDetails);
 
     }
 
-    @PatchMapping("/my-account")
-    public Account updateDetails() {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal();
-        return accountService.updateDetails(userDetails);
-    }
 }

@@ -14,6 +14,9 @@ public class AccountInfoDTO {
     private AccountHolderInformationDTO secondaryAccountHolder;
     private LocalDateTime creationDate;
 
+    public AccountInfoDTO() {
+    }
+
     public AccountInfoDTO(Long accountId, Money balance, String secretKey, boolean isPenalized, AccountHolderInformationDTO accountHolder, AccountHolderInformationDTO secondaryAccountHolder, LocalDateTime creationDate) {
         this.accountId = accountId;
         this.balance = balance;
@@ -78,5 +81,18 @@ public class AccountInfoDTO {
 
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountInfoDTO{" +
+                "accountId=" + accountId +
+                ", balance=" + balance +
+                ", secretKey='" + secretKey + '\'' +
+                ", isPenalized=" + isPenalized +
+                ", accountHolder=" + accountHolder +
+                ", secondaryAccountHolder=" + secondaryAccountHolder +
+                ", creationDate=" + creationDate +
+                '}';
     }
 }

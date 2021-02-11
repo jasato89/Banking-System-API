@@ -9,6 +9,9 @@ public class AccountNameDTO {
         this.name = name.replace("-", " ");
     }
 
+    public AccountNameDTO() {
+    }
+
     public String getName() {
         return name;
     }

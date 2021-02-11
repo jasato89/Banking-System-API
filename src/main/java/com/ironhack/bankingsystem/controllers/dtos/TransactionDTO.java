@@ -12,6 +12,10 @@ public class TransactionDTO {
         this.senderId = senderId;
         this.recipientId = recipientId;
         this.amount = amount;
+
+    }
+
+    public TransactionDTO() {
     }
 
     public Long getSenderId() {

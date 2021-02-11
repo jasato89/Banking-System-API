@@ -8,14 +8,15 @@ import java.util.*;
 
 public interface AccountControllerInterface {
     AccountInfoDTO getAccountById(Long id);
-    AccountInfoDTO getAccountByName(AccountNameDTO name);
-    Account createAccount(Account account);
+
     Money getBalanceById(Long id);
-    Money getBalanceByName(AccountNameDTO name);
-        List<AccountInfoDTO> getAllAccountsFromUser(Long userId);
+
+    List<AccountInfoDTO> getAllAccountsFromUser(Long userId);
+
     void updateBalance(Long accountId, Money money);
+
     // TODO
     void getBalance();
-    Account updateDetails();
+
 
 }

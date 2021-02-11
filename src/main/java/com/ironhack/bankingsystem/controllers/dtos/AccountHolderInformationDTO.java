@@ -14,6 +14,9 @@ public class AccountHolderInformationDTO {
     private Address primaryAddress;
     private Address mailingAddress;
 
+    public AccountHolderInformationDTO() {
+    }
+
     public AccountHolderInformationDTO(String username, String name, LocalDateTime dateOfBirth, Address primaryAddress, Address mailingAddress) {
         this.username = username;
         this.name = name;

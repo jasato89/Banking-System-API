@@ -100,4 +100,18 @@ public class Account {
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
+
+    @Override
+    public String toString() {
+        String result = "Account{" +
+                "accountId=" + accountId +
+                ", balance=" + balance +
+                ", secretKey='" + secretKey + '\'' +
+                ", isPenalized=" + isPenalized +
+                ", accountHolder=" + accountHolder;
+              String secondary =  ", secondaryAccountHolder=" + secondaryAccountHolder;
+              if (secondaryAccountHolder!= null) result += secondary;
+              result += ", creationDate=" + creationDate + '}';
+              return result;
+    }
 }

@@ -31,30 +31,7 @@ public class AccountService implements AccountServiceInterface {
 
     }
 
-    public AccountInfoDTO getAccountByName(String name) {
-        if (accountRepository.findByAccountHolderName(name).isPresent() || accountRepository.findBySecondaryAccountHolderName(name).isPresent()) {
-            Account account;
-            if (accountRepository.findByAccountHolderName(name).isPresent()) {
-                account = accountRepository.findByAccountHolderName(name).get();
-            } else {
-                account = accountRepository.findBySecondaryAccountHolderName(name).get();
-            }
-            return convertAccountIntoDTO(account);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account with name " + name + " doesn't exist in the database");
-        }
-    }
 
-    public Account createAccount(Account account) {
-
-        if (accountRepository.findById(account.getAccountId()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account with id " + account.getAccountId() + " already exists in the database");
-
-        } else {
-            return accountRepository.save(account);
-        }
-
-    }
 
     public Money getBalanceById(Long id) {
 
@@ -66,24 +43,13 @@ public class AccountService implements AccountServiceInterface {
 
     }
 
-    public Money getBalanceByName(String name) {
-        if (accountRepository.findByAccountHolderName(name).isPresent() || accountRepository.findBySecondaryAccountHolderName(name).isPresent()) {
-            if (accountRepository.findByAccountHolderName(name).isPresent()) {
-                return accountRepository.findByAccountHolderName(name).get().getBalance();
-            } else {
-                return accountRepository.findBySecondaryAccountHolderName(name).get().getBalance();
-            }
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account with name " + name + " doesn't exist in the database");
 
-        }
-    }
 
     public List<AccountInfoDTO> getAllAccountsFromUser(Long userId) {
 
         if (accountHolderRepository.findById(userId).isPresent()) {
             List<AccountInfoDTO> accounts = new ArrayList<>();
-            for(Account account : accountHolderRepository.findById(userId).get().getPrimaryAccounts()) {
+            for (Account account : accountHolderRepository.findById(userId).get().getPrimaryAccounts()) {
                 accounts.add(convertAccountIntoDTO(account));
             }
             for (Account account : accountHolderRepository.findById(userId).get().getSecondaryAccounts()) {
@@ -110,37 +76,52 @@ public class AccountService implements AccountServiceInterface {
     }
 
     //TODO
-    public void getBalance(UserDetails userDetails) {
+    public void getBalance(Long accountId, UserDetails userDetails) {
 
-    }
-
-    //TODO
-    public Account updateDetails(UserDetails userDetails) {
-        return null;
     }
 
     private AccountInfoDTO convertAccountIntoDTO(Account account) {
 
-       return new AccountInfoDTO(
-                account.getAccountId(),
-                account.getBalance(),
-                account.getSecretKey(),
-                account.isPenalized(),
-                new AccountHolderInformationDTO(
-                        account.getAccountHolder().getUsername(),
-                        account.getAccountHolder().getName(),
-                        account.getAccountHolder().getDateOfBirth(),
-                        account.getAccountHolder().getPrimaryAddress(),
-                        account.getAccountHolder().getMailingAddress()),
+        if (account.getSecondaryAccountHolder() == null) {
+            return new AccountInfoDTO(
+                    account.getAccountId(),
+                    account.getBalance(),
+                    account.getSecretKey(),
+                    account.isPenalized(),
+                    new AccountHolderInformationDTO(
+                            account.getAccountHolder().getUsername(),
+                            account.getAccountHolder().getName(),
+                            account.getAccountHolder().getDateOfBirth(),
+                            account.getAccountHolder().getPrimaryAddress(),
+                            account.getAccountHolder().getMailingAddress()),
+                    null,
+                    account.getCreationDate()
+            );
 
-                new AccountHolderInformationDTO(
-                        account.getSecondaryAccountHolder().getUsername(),
-                        account.getSecondaryAccountHolder().getName(),
-                        account.getSecondaryAccountHolder().getDateOfBirth(),
-                        account.getSecondaryAccountHolder().getPrimaryAddress(),
-                        account.getSecondaryAccountHolder().getMailingAddress()),
-                account.getCreationDate()
-        );
+        } else {
+            return new AccountInfoDTO(
+                    account.getAccountId(),
+                    account.getBalance(),
+                    account.getSecretKey(),
+                    account.isPenalized(),
+                    new AccountHolderInformationDTO(
+                            account.getAccountHolder().getUsername(),
+                            account.getAccountHolder().getName(),
+                            account.getAccountHolder().getDateOfBirth(),
+                            account.getAccountHolder().getPrimaryAddress(),
+                            account.getAccountHolder().getMailingAddress()),
+
+                    new AccountHolderInformationDTO(
+                            account.getSecondaryAccountHolder().getUsername(),
+                            account.getSecondaryAccountHolder().getName(),
+                            account.getSecondaryAccountHolder().getDateOfBirth(),
+                            account.getSecondaryAccountHolder().getPrimaryAddress(),
+                            account.getSecondaryAccountHolder().getMailingAddress()),
+                    account.getCreationDate()
+            );
+
+        }
+
 
     }
 }

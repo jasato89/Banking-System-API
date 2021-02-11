@@ -3,8 +3,12 @@ package com.ironhack.bankingsystem.models.users;
 import com.fasterxml.jackson.annotation.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.utils.*;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.*;
 import javax.validation.constraints.*;
 import java.time.*;
@@ -34,9 +38,11 @@ public class AccountHolder extends User{
     })
     private Address mailingAddress;
 
-    @OneToMany(mappedBy = "accountHolder")
+    @OneToMany( mappedBy = "accountHolder")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Account> primaryAccounts;
     @OneToMany(mappedBy = "secondaryAccountHolder")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Account> secondaryAccounts;
 
     public AccountHolder() {
@@ -47,6 +53,7 @@ public class AccountHolder extends User{
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = address;
         this.name = name;
+        super.setRole("ACCOUNTHOLDER");
     }
 
     public AccountHolder(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password, @NotBlank(message = "Name required") String name, @NotNull(message = "Date of birth required") LocalDateTime dateOfBirth, @Valid @NotNull(message = "Address required") Address primaryAddress, @Valid Address mailingAddress) {
@@ -55,6 +62,8 @@ public class AccountHolder extends User{
         this.primaryAddress = primaryAddress;
         this.mailingAddress = mailingAddress;
         this.name = name;
+        super.setRole("ACCOUNTHOLDER");
+
 
     }
 
@@ -104,5 +113,15 @@ public class AccountHolder extends User{
 
     public void setSecondaryAccounts(List<Account> secondaryAccounts) {
         this.secondaryAccounts = secondaryAccounts;
+    }
+
+    @Override
+    public String toString() {
+        return "AccountHolder{" +
+                "dateOfBirth=" + dateOfBirth +
+                ", name='" + name + '\'' +
+                ", primaryAddress=" + primaryAddress +
+                ", mailingAddress=" + mailingAddress +
+                '}';
     }
 }
