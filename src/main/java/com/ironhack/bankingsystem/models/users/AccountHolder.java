@@ -35,9 +35,7 @@ public class AccountHolder extends User{
     private Address mailingAddress;
 
     @OneToMany(mappedBy = "accountHolder")
-    @JsonIgnore
     private List<Account> primaryAccounts;
-    @JsonIgnore
     @OneToMany(mappedBy = "secondaryAccountHolder")
     private List<Account> secondaryAccounts;
 

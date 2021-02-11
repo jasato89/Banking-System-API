@@ -1,5 +1,6 @@
 package com.ironhack.bankingsystem.controllers.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.controllers.interfaces.*;
 import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
@@ -16,7 +17,7 @@ public class AccountHolderController implements AccountHolderControllerInterface
     AccountHolderServiceInterface accountHolderService;
 
     @GetMapping("/admin/account-holders")
-    public List<AccountHolder> getAllAccountHolders() {
+    public List<AccountHolderInformationDTO> getAllAccountHolders() {
         return accountHolderService.getAllAccountHolders();
     }
 

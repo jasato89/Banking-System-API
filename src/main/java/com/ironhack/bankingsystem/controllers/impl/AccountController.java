@@ -24,12 +24,12 @@ public class AccountController implements AccountControllerInterface {
     //Only accessed by ADMIN
     @GetMapping("/admin/account/id/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Account getAccountById(@PathVariable("id") Long id) {
+    public AccountInfoDTO getAccountById(@PathVariable("id") Long id) {
         return accountService.getAccountById(id);
     }
     @GetMapping("/admin/account/id/{name}")
     @ResponseStatus(HttpStatus.OK)
-    public Account getAccountByName(@PathVariable("name")@Valid AccountNameDTO name) {
+    public AccountInfoDTO getAccountByName(@PathVariable("name")@Valid AccountNameDTO name) {
         return accountService.getAccountByName(name.getName());
     }
 
@@ -53,7 +53,7 @@ public class AccountController implements AccountControllerInterface {
 
     @GetMapping("/admin/account/{id}/accounts")
     @ResponseStatus(HttpStatus.OK)
-    public List<Account> getAllAccountsFromUser(@PathVariable("id") Long userId) {
+    public List<AccountInfoDTO> getAllAccountsFromUser(@PathVariable("id") Long userId) {
         return accountService.getAllAccountsFromUser(userId);
     }
 

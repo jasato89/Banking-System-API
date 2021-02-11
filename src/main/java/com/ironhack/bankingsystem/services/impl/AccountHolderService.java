@@ -1,5 +1,6 @@
 package com.ironhack.bankingsystem.services.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
@@ -16,9 +17,20 @@ public class AccountHolderService implements AccountHolderServiceInterface {
     @Autowired
     AccountHolderRepository accountHolderRepository;
 
-    public List<AccountHolder> getAllAccountHolders() {
+    public List<AccountHolderInformationDTO> getAllAccountHolders() {
 
-        return accountHolderRepository.findAll();
+        List<AccountHolderInformationDTO> result = new ArrayList<>();
+
+        for (AccountHolder accountHolder : accountHolderRepository.findAll()) {
+            result.add(new AccountHolderInformationDTO(
+                    accountHolder.getUsername(),
+                    accountHolder.getName(),
+                    accountHolder.getDateOfBirth(),
+                    accountHolder.getPrimaryAddress(),
+                    accountHolder.getMailingAddress()));
+        }
+
+        return result;
     }
 
     public AccountHolder createAccountHolder(AccountHolder accountHolder) {
