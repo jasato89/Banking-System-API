@@ -68,11 +68,14 @@ class TransactionServiceTest {
 
     @AfterEach
     void tearDown() {
+
+
         transactionRepository.deleteAll();
         accountRepository.deleteAll();
         checkingAccountRepository.deleteAll();
         accountHolderRepository.deleteAll();
         userRepository.deleteAll();
+
     }
 
     @Test
@@ -110,6 +113,45 @@ class TransactionServiceTest {
 
         assertEquals(new BigDecimal("438.00"), checkingAccountRepository.findAll().get(0).getBalance().getAmount());
         assertEquals(new BigDecimal("10050.00"), checkingAccountRepository.findAll().get(1).getBalance().getAmount());
+
+    }
+
+    @Test
+    void appliesFees_AppliesExtraFees() throws Exception {
+
+        CheckingAccount checkingAccount = checkingAccountRepository.findAll().get(0);
+        checkingAccount.setBalance(new Money(new BigDecimal("250")));
+        checkingAccountRepository.save(checkingAccount);
+
+        TransactionDTO transactionDTO = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("50"), "USD");
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isOk()).andReturn();
+
+        assertEquals(new BigDecimal("160.00"), checkingAccountRepository.findAll().get(0).getBalance().getAmount());
+        assertEquals(new BigDecimal("10050.00"), checkingAccountRepository.findAll().get(1).getBalance().getAmount());
+
+    }
+
+    @Test
+    void appliesFees_notEnoughFunds() throws Exception {
+
+        CheckingAccount checkingAccount = checkingAccountRepository.findAll().get(0);
+        checkingAccount.setBalance(new Money(new BigDecimal("250")));
+        checkingAccountRepository.save(checkingAccount);
+
+        TransactionDTO transactionDTO = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("300"), "USD");
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isForbidden()).andReturn();
+        assertEquals(new BigDecimal("250.00"), checkingAccountRepository.findAll().get(0).getBalance().getAmount());
+        assertEquals(new BigDecimal("10000.00"), checkingAccountRepository.findAll().get(1).getBalance().getAmount());
 
     }
 

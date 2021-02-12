@@ -5,6 +5,6 @@ import com.ironhack.bankingsystem.utils.*;
 import org.springframework.security.core.userdetails.*;
 
 public interface TransactionServiceInterface {
-    Money sendMoney(UserDetails userDetails, TransactionDTO transactionDTO);
+    Money transferMoney(UserDetails userDetails, TransactionDTO transactionDTO);
 
 }

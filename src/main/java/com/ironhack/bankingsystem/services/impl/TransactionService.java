@@ -29,30 +29,26 @@ public class TransactionService implements TransactionServiceInterface {
     @Autowired
     TransactionRepository transactionRepository;
 
+    TransactionDTO transactionDTO;
+
     //TODO
-    public Money sendMoney(UserDetails userDetails, TransactionDTO transactionDTO) {
+    public Money transferMoney(UserDetails userDetails, TransactionDTO transactionDTO) {
 
-        if (accountsArePresent(transactionDTO)) {
+        this.transactionDTO = transactionDTO;
 
-            Account senderAccount = evaluateAccounts(getSenderAccount(transactionDTO), transactionDTO);
-            Account recipientAccount = evaluateAccounts(getRecipientAccount(transactionDTO), transactionDTO);
+        if (accountsArePresent()) {
+
+            Account senderAccount = getSenderAccount();
 
             if (accountHasPermissions(senderAccount, userDetails)) {
 
-
-                if (accountHasEnoughBalance(senderAccount, transactionDTO.getAmount())) {
-                    senderAccount.setBalance(new Money(senderAccount.getBalance().getAmount().subtract(transactionDTO.getAmount().getAmount()), senderAccount.getBalance().getCurrency()));
-                    recipientAccount.setBalance(new Money(recipientAccount.getBalance().getAmount().add(transactionDTO.getAmount().getAmount()), recipientAccount.getBalance().getCurrency()));
-                    transactionRepository.save(new Transaction(senderAccount, recipientAccount, transactionDTO.getAmount()));
-                }
-
+                senderAccount = evaluateAccounts(senderAccount);
+                Account recipientAccount = evaluateAccounts(getRecipientAccount());
+                makeTransaction(transactionDTO, senderAccount, recipientAccount);
 
             } else {
-
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have rights to make transfers from this account");
-
             }
-
         } else {
             if (!accountRepository.findById(transactionDTO.getSenderAccountId()).isPresent()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sorry, but the account you are trying to transfer funds from does not exist in the database");
@@ -62,22 +58,23 @@ public class TransactionService implements TransactionServiceInterface {
 
         }
 
-
         return null;
     }
 
-    private Account evaluateAccounts(Account account, TransactionDTO transactionDTO) {
+    private void makeTransaction(TransactionDTO transactionDTO, Account senderAccount, Account recipientAccount) {
+        senderAccount.setBalance(new Money(senderAccount.getBalance().getAmount().subtract(transactionDTO.getTransactionAmount().getAmount()), senderAccount.getBalance().getCurrency()));
+        recipientAccount.setBalance(new Money(recipientAccount.getBalance().getAmount().add(transactionDTO.getTransactionAmount().getAmount()), recipientAccount.getBalance().getCurrency()));
+        transactionRepository.save(new Transaction(senderAccount, recipientAccount, transactionDTO.getTransactionAmount()));
+    }
+
+    private Account evaluateAccounts(Account account) {
 
         if (account instanceof CheckingAccount) {
             CheckingAccount checkingAccount = (CheckingAccount) account;
             checkStatus(checkingAccount);
             applyMonthlyFee(checkingAccount);
-            if (checkingAccount.getAccountId().equals(transactionDTO.getSenderAccountId())) {
-                if (checkingAccount.getMinimumBalance().getAmount().compareTo(checkingAccount.getBalance().getAmount().subtract(transactionDTO.getAmount().getAmount())) > 0) {
-                    checkingAccount = (CheckingAccount) applyPenaltyFee(checkingAccount);
-                }
-            }
-            return checkingAccountRepository.save(checkingAccount);
+            checkBalanceAndApplyExtraFees(checkingAccount);
+            return checkingAccount;
 
         } else if (account instanceof StudentCheckingAccount) {
             StudentCheckingAccount studentCheckingAccount = (StudentCheckingAccount) account;
@@ -95,6 +92,25 @@ public class TransactionService implements TransactionServiceInterface {
         return account;
     }
 
+    private void checkBalanceAndApplyExtraFees(CheckingAccount checkingAccount) {
+        if (checkingAccount.getAccountId().equals(transactionDTO.getSenderAccountId())) {
+            if (dropsBelowMinimumBalance(checkingAccount)) {
+                if (!enoughFunds(checkingAccount)) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
+                } else {
+                    applyPenaltyFee(checkingAccount);
+                }
+            }
+        }
+    }
+
+    private boolean enoughFunds(Account checkingAccount) {
+        return checkingAccount.getBalance().getAmount().subtract(transactionDTO.getTransactionAmount().getAmount()).compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    private boolean dropsBelowMinimumBalance(CheckingAccount checkingAccount) {
+        return checkingAccount.getMinimumBalance().getAmount().compareTo(checkingAccount.getBalance().getAmount().subtract(transactionDTO.getTransactionAmount().getAmount())) > 0;
+    }
 
 
     private Account applyPenaltyFee(Account checkingAccount) {
@@ -142,21 +158,21 @@ public class TransactionService implements TransactionServiceInterface {
         return true;
     }
 
-    private boolean accountHasEnoughBalance(Account senderAccount, Money amount) {
+    private boolean accountHasEnoughBalance(Account senderAccount) {
 
-        return senderAccount.getBalance().getAmount().compareTo(amount.getAmount()) > 0;
+        return senderAccount.getBalance().getAmount().compareTo(transactionDTO.getTransactionAmount().getAmount()) > 0;
 
     }
 
-    private Account getRecipientAccount(TransactionDTO transactionDTO) {
+    private Account getRecipientAccount() {
         return accountRepository.findById(transactionDTO.getRecipientAccountId()).get();
     }
 
-    private Account getSenderAccount(TransactionDTO transactionDTO) {
+    private Account getSenderAccount() {
         return accountRepository.findById(transactionDTO.getSenderAccountId()).get();
     }
 
-    private boolean accountsArePresent(TransactionDTO transactionDTO) {
+    private boolean accountsArePresent() {
         return accountRepository.findById(transactionDTO.getSenderAccountId()).isPresent()
                 && accountRepository.findById(transactionDTO.getRecipientAccountId()).isPresent();
     }
