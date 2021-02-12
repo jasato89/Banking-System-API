@@ -41,7 +41,6 @@ public class TransactionService implements TransactionServiceInterface {
             Account senderAccount = getSenderAccount();
 
             if (accountHasPermissions(senderAccount, userDetails)) {
-
                 senderAccount = evaluateAccounts(senderAccount);
                 Account recipientAccount = evaluateAccounts(getRecipientAccount());
                 makeTransaction(transactionDTO, senderAccount, recipientAccount);
@@ -72,6 +71,7 @@ public class TransactionService implements TransactionServiceInterface {
         if (account instanceof CheckingAccount) {
             CheckingAccount checkingAccount = (CheckingAccount) account;
             checkStatus(checkingAccount);
+            checkFraud(checkingAccount);
             applyMonthlyFee(checkingAccount);
             checkBalanceAndApplyExtraFees(checkingAccount);
             return checkingAccount;
@@ -79,9 +79,17 @@ public class TransactionService implements TransactionServiceInterface {
         } else if (account instanceof StudentCheckingAccount) {
             StudentCheckingAccount studentCheckingAccount = (StudentCheckingAccount) account;
             checkStatus(studentCheckingAccount);
+            checkFraud(studentCheckingAccount);
+            if (!enoughFunds(studentCheckingAccount)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
+            } else {
+                return studentCheckingAccount;
+            }
 
         } else if (account instanceof CreditCard) {
             CreditCard creditCard = (CreditCard) account;
+
+
 
 
         } else if (account instanceof SavingsAccount) {

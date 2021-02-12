@@ -95,8 +95,6 @@ public class AccountService implements AccountServiceInterface {
             return new AccountInfoDTO(
                     account.getAccountId(),
                     account.getBalance(),
-                    account.getSecretKey(),
-                    account.isPenalized(),
                     new AccountHolderInformationDTO(
                             account.getAccountHolder().getUsername(),
                             account.getAccountHolder().getName(),
@@ -111,8 +109,6 @@ public class AccountService implements AccountServiceInterface {
             return new AccountInfoDTO(
                     account.getAccountId(),
                     account.getBalance(),
-                    account.getSecretKey(),
-                    account.isPenalized(),
                     new AccountHolderInformationDTO(
                             account.getAccountHolder().getUsername(),
                             account.getAccountHolder().getName(),

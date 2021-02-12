@@ -8,7 +8,6 @@ public class AccountInfoDTO {
 
     private Long accountId;
     private Money balance;
-    private String secretKey;
     private boolean isPenalized;
     private AccountHolderInformationDTO accountHolder;
     private AccountHolderInformationDTO secondaryAccountHolder;
@@ -17,11 +16,9 @@ public class AccountInfoDTO {
     public AccountInfoDTO() {
     }
 
-    public AccountInfoDTO(Long accountId, Money balance, String secretKey, boolean isPenalized, AccountHolderInformationDTO accountHolder, AccountHolderInformationDTO secondaryAccountHolder, LocalDateTime creationDate) {
+    public AccountInfoDTO(Long accountId, Money balance,  AccountHolderInformationDTO accountHolder, AccountHolderInformationDTO secondaryAccountHolder, LocalDateTime creationDate) {
         this.accountId = accountId;
         this.balance = balance;
-        this.secretKey = secretKey;
-        this.isPenalized = isPenalized;
         this.accountHolder = accountHolder;
         this.secondaryAccountHolder = secondaryAccountHolder;
         this.creationDate = creationDate;
@@ -41,14 +38,6 @@ public class AccountInfoDTO {
 
     public void setBalance(Money balance) {
         this.balance = balance;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
     }
 
     public boolean isPenalized() {
@@ -83,16 +72,5 @@ public class AccountInfoDTO {
         this.creationDate = creationDate;
     }
 
-    @Override
-    public String toString() {
-        return "AccountInfoDTO{" +
-                "accountId=" + accountId +
-                ", balance=" + balance +
-                ", secretKey='" + secretKey + '\'' +
-                ", isPenalized=" + isPenalized +
-                ", accountHolder=" + accountHolder +
-                ", secondaryAccountHolder=" + secondaryAccountHolder +
-                ", creationDate=" + creationDate +
-                '}';
-    }
+
 }
