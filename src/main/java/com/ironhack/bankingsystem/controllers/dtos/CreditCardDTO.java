@@ -26,6 +26,7 @@ public class CreditCardDTO {
     @NotNull
     @Valid
     private AccountHolder accountHolder;
+    @Valid
     private AccountHolder secondaryAccountHolder;
 
     public CreditCardDTO(@Valid Currency currency, @DecimalMax(value = "10000", message = "Max credit limit must be below 10000") @DecimalMin(value = "100", message = "Min credit limit must be above 100") BigDecimal creditLimit, @DecimalMax(value = "0.2", message = "Max interest rate must be below 0.2") @DecimalMin(value = "0.1", message = "Min interest rate must be above 0.1") BigDecimal interestRate, @NotNull @DecimalMin(value = "0", message = "Minimum Balance must be zero or above zero") BigDecimal balance, @NotNull String secretKey, @NotNull @Valid AccountHolder accountHolder, AccountHolder secondaryAccountHolder) {
@@ -44,6 +45,14 @@ public class CreditCardDTO {
 
     public void setCurrency(Currency currency) {
         this.currency = currency;
+    }
+
+    public AccountHolder getSecondaryAccountHolder() {
+        return secondaryAccountHolder;
+    }
+
+    public void setSecondaryAccountHolder(AccountHolder secondaryAccountHolder) {
+        this.secondaryAccountHolder = secondaryAccountHolder;
     }
 
     public BigDecimal getCreditLimit() {

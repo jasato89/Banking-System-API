@@ -1,8 +1,10 @@
 package com.ironhack.bankingsystem.services.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
+import com.ironhack.bankingsystem.utils.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
 import org.springframework.stereotype.*;
@@ -15,14 +17,10 @@ public class CreditCardService implements CreditCardServiceInterface {
     @Autowired
     CreditCardRepository creditCardRepository;
 
-    public CreditCard createCreditCardAccount(CreditCard creditCard) {
+    public CreditCard createCreditCardAccount(CreditCardDTO creditCard) {
 
-        if (creditCardRepository.findById(creditCard.getAccountId()).isPresent()) {
-
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Credit card with id " + creditCard.getAccountId() + " already exists in the database");
-        } else {
-            return creditCardRepository.save(creditCard);
-        }
+       return creditCardRepository.save(
+               new CreditCard(new Money(creditCard.getBalance()), creditCard.getSecretKey(), creditCard.getAccountHolder(), creditCard.getSecondaryAccountHolder(), new Money(creditCard.getCreditLimit()), creditCard.getInterestRate()));
     }
 
     public CreditCard updateCreditCardAccount(Long id, CreditCard creditCard) {
@@ -39,9 +37,6 @@ public class CreditCardService implements CreditCardServiceInterface {
     public List<CreditCard> getAllCreditCards() {
         return creditCardRepository.findAll();
     }
-
-
-
 
 
 }

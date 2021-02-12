@@ -1,5 +1,6 @@
 package com.ironhack.bankingsystem.controllers.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.controllers.interfaces.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
@@ -25,7 +26,7 @@ public class CreditCardController implements CreditCardControllerInterface {
 
     @PostMapping("/credit-card/new")
     @ResponseStatus(HttpStatus.OK)
-    public CreditCard createCreditCardAccount(@RequestBody @Valid CreditCard creditCard) {
+    public CreditCard createCreditCardAccount(@RequestBody @Valid CreditCardDTO creditCard) {
         return creditCardService.createCreditCardAccount(creditCard);
     }
 
