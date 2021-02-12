@@ -54,9 +54,9 @@ class AccountControllerTest {
         accountHolder2 = new AccountHolder("jasato2", pwdEnconder.encode("12345"), "Jose Pérez", LocalDate.of(2000, 1, 15).atStartOfDay(), new Address("Spain", "Barcelona", "Las Ramblas", 10, "47890"));
         accountHolderRepository.saveAll(List.of(accountHolder1, accountHolder2));
         //Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder
-        Account account1 = new Account(new Money(new BigDecimal("250"), Currency.getInstance("EUR")), pwdEnconder.encode("1234"), false, accountHolder1, null);
-        Account account2 = new Account(new Money(new BigDecimal("10000"), Currency.getInstance("EUR")), pwdEnconder.encode("1234"), false, accountHolder1, accountHolder2);
-        Account account3 = new Account(new Money(new BigDecimal("480"), Currency.getInstance("EUR")), pwdEnconder.encode("1234"), false, accountHolder1, null);
+        Account account1 = new Account(new Money(new BigDecimal("250"), Currency.getInstance("EUR")), pwdEnconder.encode("1234"), accountHolder1, null);
+        Account account2 = new Account(new Money(new BigDecimal("10000"), Currency.getInstance("EUR")), pwdEnconder.encode("1234"), accountHolder2, null);
+        Account account3 = new Account(new Money(new BigDecimal("480"), Currency.getInstance("EUR")), pwdEnconder.encode("1234"), accountHolder1, null);
         accountRepository.saveAll(List.of(account1, account2, account3));
 
 

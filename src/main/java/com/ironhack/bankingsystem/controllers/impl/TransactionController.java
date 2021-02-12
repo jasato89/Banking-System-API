@@ -24,7 +24,7 @@ public class TransactionController implements TransactionControllerInterface {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
 
-        return transactionService.sendMoney(transactionDTO);
+        return transactionService.sendMoney(userDetails, transactionDTO);
     }
 
 

@@ -25,8 +25,8 @@ public class SavingsAccount extends Account {
 
     public SavingsAccount() {status = Status.ACTIVE;}
 
-    public SavingsAccount(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5") @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0") BigDecimal interestRate, BigDecimal minimumBalance) {
-        super(balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
+    public SavingsAccount(Money balance, String secretKey,  @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5") @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0") BigDecimal interestRate, BigDecimal minimumBalance) {
+        super(balance, secretKey, accountHolder, secondaryAccountHolder);
         setInterestRate(interestRate);
         setMinimumBalance(minimumBalance);
 
@@ -37,7 +37,7 @@ public class SavingsAccount extends Account {
     }
 
     public void setMinimumBalance(BigDecimal minimumBalance) {
-        this.minimumBalance = minimumBalance.equals(null) ? Constants.SAVINGS_ACC_DEFAULT_MIN_BALANCE : minimumBalance;
+        this.minimumBalance = minimumBalance == null ? Constants.SAVINGS_ACC_DEFAULT_MIN_BALANCE : minimumBalance;
     }
 
     public BigDecimal getInterestRate() {
@@ -46,7 +46,7 @@ public class SavingsAccount extends Account {
 
     public void setInterestRate(BigDecimal interestRate) {
 
-        this.interestRate = interestRate.equals(null) ? Constants.SAVINGS_ACC_DEFAULT_INTEREST_RATE : interestRate;;
+        this.interestRate = interestRate == null ? Constants.SAVINGS_ACC_DEFAULT_INTEREST_RATE : interestRate;;
     }
 
     public Status getStatus() {

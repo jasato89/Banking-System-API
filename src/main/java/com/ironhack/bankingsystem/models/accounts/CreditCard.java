@@ -25,20 +25,15 @@ public class CreditCard  extends Account{
     @DecimalMax(value = "0.2", message = "Max interest rate must be below 0.2")
     @DecimalMin(value = "0.1", message = "Min interest rate must be above 0.1")
     private BigDecimal interestRate;
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "currency", column = @Column(name = "penalty_fee_currency")),
-            @AttributeOverride(name = "amount", column = @Column(name = "penalty_fee_amount"))
-    })
-    private Money penaltyFee = Constants.PENALTY_FEE;
+
     private LocalDateTime lastInterestApplied;
 
 
     public CreditCard() {
     }
 
-    public CreditCard(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, @DecimalMax(value = "10000", message = "Max credit limit must be below 10000") @DecimalMin(value = "100", message = "Min credit limit must be above 100") Money creditLimit, @DecimalMax(value = "0.2", message = "Max interest rate must be below 0.2") @DecimalMin(value = "0.1", message = "Min interest rate must be above 0.1") BigDecimal interestRate) {
-        super(balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
+    public CreditCard(Money balance, String secretKey,  @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, @DecimalMax(value = "10000", message = "Max credit limit must be below 10000") @DecimalMin(value = "100", message = "Min credit limit must be above 100") Money creditLimit, @DecimalMax(value = "0.2", message = "Max interest rate must be below 0.2") @DecimalMin(value = "0.1", message = "Min interest rate must be above 0.1") BigDecimal interestRate) {
+        super(balance, secretKey, accountHolder, secondaryAccountHolder);
         setCreditLimit(creditLimit);
         setInterestRate(interestRate);
         lastInterestApplied = LocalDateTime.now();
@@ -70,11 +65,4 @@ public class CreditCard  extends Account{
         this.interestRate = interestRate;
     }
 
-    public Money getPenaltyFee() {
-        return penaltyFee;
-    }
-
-    public void setPenaltyFee(Money penaltyFee) {
-        this.penaltyFee = penaltyFee;
-    }
 }

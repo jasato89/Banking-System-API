@@ -1,37 +1,57 @@
 package com.ironhack.bankingsystem.controllers.dtos;
 
 import com.ironhack.bankingsystem.utils.*;
+import org.springframework.http.*;
+import org.springframework.web.server.*;
+
+import javax.validation.constraints.*;
+import java.math.*;
+import java.util.*;
 
 public class TransactionDTO {
 
-    private Long senderId;
-    private Long recipientId;
+    private Long senderAccountId;
+    private Long recipientAccountId;
+    private String recipientName;
     private Money amount;
 
-    public TransactionDTO(Long senderId, Long recipientId, Money amount) {
-        this.senderId = senderId;
-        this.recipientId = recipientId;
-        this.amount = amount;
+    public TransactionDTO(Long senderAccountId, Long recipientId, String recipientName, @DecimalMin(value = "0.01", message = "Amount must be above 0") BigDecimal amount, @Pattern(regexp = "(\\w{3})", message = "Please provide a valid currency") String currency) {
+        try {
+            this.senderAccountId = senderAccountId;
+            this.recipientAccountId = recipientId;
+            this.recipientName = recipientName;
+            this.amount = new Money(amount, Currency.getInstance(currency.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please provide a valid currency");
+        }
 
     }
 
     public TransactionDTO() {
     }
 
-    public Long getSenderId() {
-        return senderId;
+    public Long getSenderAccountId() {
+        return senderAccountId;
     }
 
-    public void setSenderId(Long senderId) {
-        this.senderId = senderId;
+    public void setSenderAccountId(Long senderAccountId) {
+        this.senderAccountId = senderAccountId;
     }
 
-    public Long getRecipientId() {
-        return recipientId;
+    public String getRecipientName() {
+        return recipientName;
     }
 
-    public void setRecipientId(Long recipientId) {
-        this.recipientId = recipientId;
+    public void setRecipientName(String recipientName) {
+        this.recipientName = recipientName;
+    }
+
+    public Long getRecipientAccountId() {
+        return recipientAccountId;
+    }
+
+    public void setRecipientAccountId(Long recipientAccountId) {
+        this.recipientAccountId = recipientAccountId;
     }
 
     public Money getAmount() {

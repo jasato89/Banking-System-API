@@ -30,7 +30,7 @@ public class CheckingAccountService implements CheckingAccountServiceInterface {
 
             CheckingAccount checking = checkingAccount;
             if (ChronoUnit.YEARS.between(checking.getAccountHolder().getDateOfBirth(), LocalDateTime.now()) < 24) {
-                    StudentCheckingAccount studentCheckingAccount = new StudentCheckingAccount(checking.getBalance(), checking.getSecretKey(), checking.isPenalized(), checking.getAccountHolder(), checking.getSecondaryAccountHolder());
+                    StudentCheckingAccount studentCheckingAccount = new StudentCheckingAccount(checking.getBalance(), checking.getSecretKey(), checking.getAccountHolder(), checking.getSecondaryAccountHolder());
                     return studentCheckingAccountRepository.save(studentCheckingAccount);
 
             } else {

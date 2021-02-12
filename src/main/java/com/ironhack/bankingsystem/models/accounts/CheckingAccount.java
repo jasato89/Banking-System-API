@@ -7,10 +7,14 @@ import com.ironhack.bankingsystem.utils.*;
 import javax.persistence.*;
 import javax.validation.*;
 import javax.validation.constraints.*;
+import java.math.*;
+import java.time.*;
+import java.util.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
 public class CheckingAccount extends Account {
+    LocalDateTime maintenanceFeeLastTimeApplied;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "currency", column = @Column(name = "minimum_balance_currency")),
@@ -23,7 +27,6 @@ public class CheckingAccount extends Account {
             @AttributeOverride(name = "amount", column = @Column(name = "monthly_maintenance_fee_amount"))
     })
     private Money monthlyMaintenanceFee;
-
     @Enumerated(value = EnumType.STRING)
     private Status status;
 
@@ -32,18 +35,21 @@ public class CheckingAccount extends Account {
     }
 
 
-    public CheckingAccount(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
-        super(balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
+    public CheckingAccount(@DecimalMin(value = "250", message = "Interest rate must be above 0 or 0") Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
+        super(balance, secretKey, accountHolder, secondaryAccountHolder);
         setMinimumBalance(minimumBalance);
         setMonthlyMaintenanceFee(monthlyMaintenanceFee);
+        status = Status.ACTIVE;
+        maintenanceFeeLastTimeApplied = LocalDateTime.now();
     }
+
 
     public Money getMinimumBalance() {
         return minimumBalance;
     }
 
     public void setMinimumBalance(Money minimumBalance) {
-        this.minimumBalance = minimumBalance.equals(null) ? Constants.CHECKING_ACC_MIN_BALANCE : minimumBalance;
+        this.minimumBalance = minimumBalance == null ? new Money(Constants.CHECKING_ACC_MIN_BALANCE) : minimumBalance;
     }
 
     public Money getMonthlyMaintenanceFee() {
@@ -51,7 +57,7 @@ public class CheckingAccount extends Account {
     }
 
     public void setMonthlyMaintenanceFee(Money monthlyMaintenanceFee) {
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee.equals(null) ? Constants.CHECKING_ACC_DEFFAULT_MONTHLY_FEE : monthlyMaintenanceFee;
+        this.monthlyMaintenanceFee = monthlyMaintenanceFee == null ? new Money(Constants.CHECKING_ACC_DEFFAULT_MONTHLY_FEE) : monthlyMaintenanceFee;
     }
 
     public Status getStatus() {
@@ -60,5 +66,13 @@ public class CheckingAccount extends Account {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public LocalDateTime getMaintenanceFeeLastTimeApplied() {
+        return maintenanceFeeLastTimeApplied;
+    }
+
+    public void setMaintenanceFeeLastTimeApplied(LocalDateTime maintenanceFeeLastTimeApplied) {
+        this.maintenanceFeeLastTimeApplied = maintenanceFeeLastTimeApplied;
     }
 }

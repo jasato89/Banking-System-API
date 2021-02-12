@@ -1,0 +1,117 @@
+package com.ironhack.bankingsystem.services.impl;
+
+import com.fasterxml.jackson.databind.*;
+import com.ironhack.bankingsystem.controllers.dtos.*;
+import com.ironhack.bankingsystem.controllers.impl.*;
+import com.ironhack.bankingsystem.models.accounts.*;
+import com.ironhack.bankingsystem.models.users.*;
+import com.ironhack.bankingsystem.repositories.*;
+import com.ironhack.bankingsystem.security.*;
+import com.ironhack.bankingsystem.utils.*;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.context.*;
+import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
+import org.springframework.test.web.servlet.*;
+import org.springframework.test.web.servlet.setup.*;
+import org.springframework.web.context.*;
+
+import java.math.*;
+import java.time.*;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+class TransactionServiceTest {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    CheckingAccountRepository checkingAccountRepository;
+    @Autowired
+    TransactionRepository transactionRepository;
+    @Autowired
+    TransactionController transactionController;
+    @Autowired
+    AccountRepository accountRepository;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    AccountHolderRepository accountHolderRepository;
+    PasswordEncoder pwdEnconder = new BCryptPasswordEncoder();
+    AccountHolder accountHolder1;
+    AccountHolder accountHolder2;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+        //@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password, @NotBlank(message = "Name required") String name, @NotNull(message = "Date of birth required") LocalDateTime dateOfBirth, @Valid @NotNull(message = "Address required") Address address
+        accountHolder1 = new AccountHolder("jasato", pwdEnconder.encode("1234"), "Jaume Sanchez", LocalDate.of(1989, 1, 13).atStartOfDay(), new Address("Spain", "Madrid", "Callle Murillo", 10, "07006"));
+        accountHolder2 = new AccountHolder("jasato2", pwdEnconder.encode("12345"), "Jose Perez", LocalDate.of(2000, 1, 15).atStartOfDay(), new Address("Spain", "Barcelona", "Las Ramblas", 10, "47890"));
+        accountHolderRepository.saveAll(List.of(accountHolder1, accountHolder2));
+        //Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder
+        //    public CheckingAccount(Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
+        CheckingAccount account1 = new CheckingAccount(new Money(new BigDecimal("500")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(0), null, null, null);
+        CheckingAccount account2 = new CheckingAccount(new Money(new BigDecimal("10000")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(1), null, null, null);
+        CheckingAccount account3 = new CheckingAccount(new Money(new BigDecimal("480")), pwdEnconder.encode("1234"), accountHolder1, null, null, null);
+        checkingAccountRepository.saveAll(List.of(account1, account2, account3));
+
+    }
+
+    @AfterEach
+    void tearDown() {
+        transactionRepository.deleteAll();
+        accountRepository.deleteAll();
+        checkingAccountRepository.deleteAll();
+        accountHolderRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+    @Test
+    void sendMoney() throws Exception {
+
+        //Long senderAccountId, Long recipientId, String recipientName, BigDecimal amount,  String currency
+        TransactionDTO transactionDTO = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("50"), "USD");
+
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isOk()).andReturn();
+
+        assertEquals(new BigDecimal("450.00"), checkingAccountRepository.findAll().get(0).getBalance().getAmount());
+        assertEquals(new BigDecimal("10050.00"), checkingAccountRepository.findAll().get(1).getBalance().getAmount());
+
+    }
+
+    @Test
+    void appliesFees() throws Exception {
+
+        CheckingAccount checkingAccount = checkingAccountRepository.findAll().get(0);
+        checkingAccount.setMaintenanceFeeLastTimeApplied(LocalDateTime.now().minusMonths(1));
+        checkingAccountRepository.save(checkingAccount);
+
+        TransactionDTO transactionDTO = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("50"), "USD");
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isOk()).andReturn();
+
+        assertEquals(new BigDecimal("438.00"), checkingAccountRepository.findAll().get(0).getBalance().getAmount());
+        assertEquals(new BigDecimal("10050.00"), checkingAccountRepository.findAll().get(1).getBalance().getAmount());
+
+    }
+
+
+}

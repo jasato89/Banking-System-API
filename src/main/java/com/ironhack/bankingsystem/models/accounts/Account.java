@@ -33,10 +33,9 @@ public class Account {
     private AccountHolder secondaryAccountHolder;
     private LocalDateTime creationDate;
 
-    public Account(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder) {
+    public Account(Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder) {
         this.balance = balance;
         this.secretKey = secretKey;
-        this.isPenalized = isPenalized;
         this.accountHolder = accountHolder;
         this.secondaryAccountHolder = secondaryAccountHolder;
         this.creationDate = LocalDateTime.now();

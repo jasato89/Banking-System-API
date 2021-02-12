@@ -17,8 +17,8 @@ public class StudentCheckingAccount extends Account {
 
     public StudentCheckingAccount(){status = Status.ACTIVE;}
 
-    public StudentCheckingAccount(Money balance, String secretKey, boolean isPenalized, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder) {
-        super(balance, secretKey, isPenalized, accountHolder, secondaryAccountHolder);
+    public StudentCheckingAccount(Money balance, String secretKey,  @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder) {
+        super(balance, secretKey, accountHolder, secondaryAccountHolder);
     }
 
     public Status getStatus() {

@@ -28,7 +28,6 @@ public class Transaction {
     public Transaction(Account senderId, Account recipientId,  Money amount) {
         this.sender = senderId;
         this.recipitent = recipientId;
-        this.timeStamp = timeStamp;
         this.amount = amount;
         timeStamp = LocalDateTime.now();
     }
