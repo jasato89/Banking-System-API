@@ -51,7 +51,8 @@ public class CreditCard  extends Account{
     }
 
     public void setCreditLimit(Money creditLimit) {
-        this.creditLimit = creditLimit;
+
+        this.creditLimit = creditLimit == null ? new Money(new BigDecimal("100")) : creditLimit;
     }
 
     public BigDecimal getInterestRate() {
@@ -59,7 +60,8 @@ public class CreditCard  extends Account{
     }
 
     public void setInterestRate(BigDecimal interestRate) {
-        this.interestRate = interestRate;
+
+        this.interestRate = interestRate == null ? new BigDecimal("0.12") : interestRate;
     }
 
 }

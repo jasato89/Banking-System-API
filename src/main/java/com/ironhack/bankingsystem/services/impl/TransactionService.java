@@ -27,9 +27,28 @@ public class TransactionService implements TransactionServiceInterface {
     CheckingAccountRepository checkingAccountRepository;
 
     @Autowired
+    CreditCardRepository creditCardRepository;
+
+    @Autowired
     TransactionRepository transactionRepository;
 
     TransactionDTO transactionDTO;
+
+    public static CreditCard applyInterestRate(CreditCard creditCard) {
+        Long monthsBetween = ChronoUnit.MONTHS.between(creditCard.getLastInterestApplied(), LocalDateTime.now());
+        if (monthsBetween > 0 && creditCard.getBalance().getAmount().compareTo(BigDecimal.ZERO) > 0) {
+            creditCard.setBalance(
+                    new Money(creditCard.getBalance().getAmount().add(creditCard.getBalance().getAmount()
+                            .multiply(new BigDecimal(monthsBetween))
+                            .multiply(
+                                    creditCard.getInterestRate()
+                                            .divide(new BigDecimal("12"))))));
+
+
+        }
+
+        return creditCard;
+    }
 
     //TODO
     public Money transferMoney(UserDetails userDetails, TransactionDTO transactionDTO) {
@@ -88,13 +107,15 @@ public class TransactionService implements TransactionServiceInterface {
 
         } else if (account instanceof CreditCard) {
             CreditCard creditCard = (CreditCard) account;
-
-
+            applyInterestRate(creditCard);
+            checkFraud(creditCard);
 
 
         } else if (account instanceof SavingsAccount) {
             SavingsAccount savingsAccount = (SavingsAccount) account;
             checkStatus(savingsAccount);
+            checkFraud(savingsAccount);
+
 
         }
         return account;

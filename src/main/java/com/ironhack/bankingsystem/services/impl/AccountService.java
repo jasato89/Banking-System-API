@@ -73,7 +73,6 @@ public class AccountService implements AccountServiceInterface {
 
     }
 
-    //TODO
     public Money getBalance(Long accountId, UserDetails userDetails) {
 
         if (accountRepository.findById(accountId).isPresent()) {

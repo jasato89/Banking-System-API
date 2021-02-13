@@ -43,6 +43,8 @@ class TransactionServiceTest {
     UserRepository userRepository;
     @Autowired
     AccountHolderRepository accountHolderRepository;
+    @Autowired
+    CreditCardRepository creditCardRepository;
     PasswordEncoder pwdEnconder = new BCryptPasswordEncoder();
     AccountHolder accountHolder1;
     AccountHolder accountHolder2;
@@ -57,12 +59,14 @@ class TransactionServiceTest {
         accountHolder1 = new AccountHolder("jasato", pwdEnconder.encode("1234"), "Jaume Sanchez", LocalDate.of(1989, 1, 13).atStartOfDay(), new Address("Spain", "Madrid", "Callle Murillo", 10, "07006"));
         accountHolder2 = new AccountHolder("jasato2", pwdEnconder.encode("12345"), "Jose Perez", LocalDate.of(2000, 1, 15).atStartOfDay(), new Address("Spain", "Barcelona", "Las Ramblas", 10, "47890"));
         accountHolderRepository.saveAll(List.of(accountHolder1, accountHolder2));
-        //Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder
         //    public CheckingAccount(Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
         CheckingAccount account1 = new CheckingAccount(new Money(new BigDecimal("500")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(0), null, null, null);
         CheckingAccount account2 = new CheckingAccount(new Money(new BigDecimal("10000")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(1), null, null, null);
         CheckingAccount account3 = new CheckingAccount(new Money(new BigDecimal("480")), pwdEnconder.encode("1234"), accountHolder1, null, null, null);
+        //    public CreditCard(Money balance, String secretKey,  @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money creditLimit,  BigDecimal interestRate)
+        CreditCard creditCard1 = new CreditCard(new Money(new BigDecimal("500")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(0), null, null, null);
         checkingAccountRepository.saveAll(List.of(account1, account2, account3));
+        creditCardRepository.save(creditCard1);
 
     }
 
@@ -152,6 +156,42 @@ class TransactionServiceTest {
                 .andExpect(status().isForbidden()).andReturn();
         assertEquals(new BigDecimal("250.00"), checkingAccountRepository.findAll().get(0).getBalance().getAmount());
         assertEquals(new BigDecimal("10000.00"), checkingAccountRepository.findAll().get(1).getBalance().getAmount());
+
+    }
+
+    @Test
+    void appliesInterestsCreditCard() throws Exception {
+        CreditCard creditCard = creditCardRepository.findAll().get(0);
+        creditCard.setLastInterestApplied(LocalDateTime.now().minusMonths(12));
+        creditCardRepository.save(creditCard);
+
+        TransactionDTO transactionDTO = new TransactionDTO(creditCardRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("100"), "USD");
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isOk()).andReturn();
+
+        assertEquals(new BigDecimal("460.00"), creditCardRepository.findAll().get(0).getBalance().getAmount());
+
+    }
+
+    @Test
+    void appliesInterestsCreditCard_sixMonths() throws Exception {
+        CreditCard creditCard = creditCardRepository.findAll().get(0);
+        creditCard.setLastInterestApplied(LocalDateTime.now().minusMonths(6));
+        creditCardRepository.save(creditCard);
+
+        TransactionDTO transactionDTO = new TransactionDTO(creditCardRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("100"), "USD");
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isOk()).andReturn();
+
+        assertEquals(new BigDecimal("430.00"), creditCardRepository.findAll().get(0).getBalance().getAmount());
 
     }
 
