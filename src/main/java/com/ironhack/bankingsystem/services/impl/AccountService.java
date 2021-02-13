@@ -1,6 +1,7 @@
 package com.ironhack.bankingsystem.services.impl;
 
 import com.ironhack.bankingsystem.controllers.dtos.*;
+import com.ironhack.bankingsystem.models.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
@@ -77,6 +78,7 @@ public class AccountService implements AccountServiceInterface {
 
         if (accountRepository.findById(accountId).isPresent()) {
             Account account = accountRepository.findById(accountId).get();
+            if (account instanceof CreditCard) TransactionService.applyInterestRate((CreditCard) account);
             if (account.getAccountHolder().getUsername().equals(userDetails.getUsername()) || account.getSecondaryAccountHolder().getUsername().equals(userDetails.getUsername())) {
                 return account.getBalance();
             } else {

@@ -43,6 +43,7 @@ public class TransactionService implements TransactionServiceInterface {
                             .multiply(
                                     creditCard.getInterestRate()
                                             .divide(new BigDecimal("12"))))));
+            creditCard.setLastInterestApplied(LocalDateTime.now());
 
 
         }
