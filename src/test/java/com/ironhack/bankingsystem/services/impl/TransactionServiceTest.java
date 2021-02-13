@@ -3,6 +3,8 @@ package com.ironhack.bankingsystem.services.impl;
 import com.fasterxml.jackson.databind.*;
 import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.controllers.impl.*;
+import com.ironhack.bankingsystem.enums.*;
+import com.ironhack.bankingsystem.models.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.repositories.*;
@@ -51,6 +53,10 @@ class TransactionServiceTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
     private MockMvc mockMvc;
+    Transaction transaction;
+    Transaction transaction2;
+    Transaction transaction3;
+
 
     @BeforeEach
     void setUp() {
@@ -68,6 +74,14 @@ class TransactionServiceTest {
         checkingAccountRepository.saveAll(List.of(account1, account2, account3));
         creditCardRepository.save(creditCard1);
 
+        transaction = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
+        transaction.setTimeStamp(LocalDateTime.now().minusMonths(1).minusMinutes(1));
+        transaction2 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
+        transaction2.setTimeStamp(LocalDateTime.now().minusMonths(1).minusMinutes(3));
+        transaction3= new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
+        transaction3.setTimeStamp(LocalDateTime.now().minusMinutes(3));
+        transactionRepository.saveAll(List.of(transaction, transaction2, transaction3));
+
     }
 
     @AfterEach
@@ -79,6 +93,7 @@ class TransactionServiceTest {
         checkingAccountRepository.deleteAll();
         accountHolderRepository.deleteAll();
         userRepository.deleteAll();
+
 
     }
 
@@ -194,6 +209,7 @@ class TransactionServiceTest {
         assertEquals(new BigDecimal("430.00"), creditCardRepository.findAll().get(0).getBalance().getAmount());
 
     }
+
     @Test
     void appliesInterestsCreditCard_noInterests() throws Exception {
         CreditCard creditCard = creditCardRepository.findAll().get(0);
@@ -237,8 +253,8 @@ class TransactionServiceTest {
 
     @Test
     void checkFraud_twoTransactionsInLessThanOneSecond_CheckingAccount() throws Exception {
-        CheckingAccount creditCard = checkingAccountRepository.findAll().get(0);
-        checkingAccountRepository.save(creditCard);
+        CheckingAccount checkingAccount = checkingAccountRepository.findAll().get(0);
+        checkingAccountRepository.save(checkingAccount);
 
         TransactionDTO transactionDTO = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("100"), "USD");
         TransactionDTO transactionDTO2 = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("100"), "USD");
@@ -254,6 +270,22 @@ class TransactionServiceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(transactionDTO2)))
                 .andExpect(status().isForbidden()).andReturn();
+
+    }
+
+
+    @Test
+    void checkFraud_moreSpentInLast24Hours() throws Exception {
+
+
+        TransactionDTO transactionDTO = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("50"), "USD");
+
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isOk()).andReturn();
 
     }
 

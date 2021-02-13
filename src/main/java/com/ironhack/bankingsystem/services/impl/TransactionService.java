@@ -54,7 +54,6 @@ public class TransactionService implements TransactionServiceInterface {
         return creditCard;
     }
 
-    //TODO
     public Money transferMoney(UserDetails userDetails, TransactionDTO transactionDTO) {
 
         this.transactionDTO = transactionDTO;
@@ -67,6 +66,7 @@ public class TransactionService implements TransactionServiceInterface {
                 senderAccount = evaluateAccounts(senderAccount);
                 Account recipientAccount = evaluateAccounts(getRecipientAccount());
                 makeTransaction(transactionDTO, senderAccount, recipientAccount);
+                return transactionDTO.getTransactionAmount();
 
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have rights to make transfers from this account");
@@ -80,7 +80,6 @@ public class TransactionService implements TransactionServiceInterface {
 
         }
 
-        return null;
     }
 
     private void makeTransaction(TransactionDTO transactionDTO, Account senderAccount, Account recipientAccount) {
@@ -94,7 +93,9 @@ public class TransactionService implements TransactionServiceInterface {
         if (account instanceof CheckingAccount) {
             CheckingAccount checkingAccount = (CheckingAccount) account;
             checkStatus(checkingAccount);
-            isFraudulent(checkingAccount);
+            if (isSender(checkingAccount)) {
+                checkFraud(checkingAccount);
+            }
             applyMonthlyFee(checkingAccount);
             checkBalanceAndApplyExtraFees(checkingAccount);
             return checkingAccount;
@@ -102,10 +103,15 @@ public class TransactionService implements TransactionServiceInterface {
         } else if (account instanceof StudentCheckingAccount) {
             StudentCheckingAccount studentCheckingAccount = (StudentCheckingAccount) account;
             checkStatus(studentCheckingAccount);
-            isFraudulent(studentCheckingAccount);
-            if (!enoughFunds(studentCheckingAccount)) {
-                saveAccount(studentCheckingAccount);
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
+            if (isSender(studentCheckingAccount)) {
+                checkFraud(studentCheckingAccount);
+                if (!enoughFunds(studentCheckingAccount)) {
+                    saveAccount(studentCheckingAccount);
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
+                } else {
+                    return studentCheckingAccount;
+
+                }
             } else {
                 return studentCheckingAccount;
             }
@@ -113,20 +119,25 @@ public class TransactionService implements TransactionServiceInterface {
         } else if (account instanceof CreditCard) {
             CreditCard creditCard = (CreditCard) account;
             applyInterestRate(creditCard);
-            isFraudulent(creditCard);
+            checkFraud(creditCard);
 
 
         } else if (account instanceof SavingsAccount) {
             SavingsAccount savingsAccount = (SavingsAccount) account;
             checkStatus(savingsAccount);
-            isFraudulent(savingsAccount);
+            checkFraud(savingsAccount);
 
 
         }
         return account;
     }
 
-    private void isFraudulent(CreditCard creditCard) {
+    private boolean isSender(Account account) {
+        return account.getAccountId().equals(transactionDTO.getSenderAccountId());
+
+    }
+
+    private void checkFraud(CreditCard creditCard) {
         if (transactionRepository.findTransactionBySenderAndTimeStampBetween((Account) creditCard, LocalDateTime.now().minusSeconds(1), LocalDateTime.now()).isPresent()) {
             saveAccount(creditCard);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: You cannot transfer money now due to a potential fraud detected");
@@ -185,14 +196,27 @@ public class TransactionService implements TransactionServiceInterface {
     }
 
 
-
-    private void isFraudulent(Penalizable senderAccount) {
+    private void checkFraud(Penalizable senderAccount) {
         if (transactionRepository.findTransactionBySenderAndTimeStampBetween((Account) senderAccount, LocalDateTime.now().minusSeconds(1), LocalDateTime.now()).isPresent()) {
             senderAccount.setStatus(Status.FROZEN);
             saveAccount((Account) senderAccount);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: Your account is now frozen due to a potential fraud detected");
+        }
+
+        if (transactionRepository.getMaxByDay(senderAccount.getAccountId()).isPresent() && transactionRepository.getSumLastTransactions(senderAccount.getAccountId()).isPresent()) {
+
+            BigDecimal getMaxByDay = transactionRepository.getMaxByDay(senderAccount.getAccountId()).get().multiply(new BigDecimal("1.5"));
+            BigDecimal getLastDay = transactionRepository.getSumLastTransactions(senderAccount.getAccountId()).get();
+
+            if (getMaxByDay.compareTo(getLastDay) < 0) {
+
+                senderAccount.setStatus(Status.FROZEN);
+                saveAccount((Account) senderAccount);
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: Your account is now frozen due to a potential fraud detected");
+            }
 
         }
+
     }
 
     private void saveAccount(Account account) {
@@ -208,11 +232,6 @@ public class TransactionService implements TransactionServiceInterface {
 
     }
 
-    private boolean accountHasEnoughBalance(Account senderAccount) {
-
-        return senderAccount.getBalance().getAmount().compareTo(transactionDTO.getTransactionAmount().getAmount()) > 0;
-
-    }
 
     private Account getRecipientAccount() {
         return accountRepository.findById(transactionDTO.getRecipientAccountId()).get();

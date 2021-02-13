@@ -1,17 +1,14 @@
 package com.ironhack.bankingsystem.repositories;
 
 import com.fasterxml.jackson.databind.*;
-import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.controllers.impl.*;
 import com.ironhack.bankingsystem.models.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.models.users.*;
-import com.ironhack.bankingsystem.security.*;
 import com.ironhack.bankingsystem.utils.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.context.*;
-import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.*;
 import org.springframework.test.web.servlet.*;
@@ -23,10 +20,8 @@ import java.time.*;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 @SpringBootTest
 class TransactionRepositoryTest {
 
@@ -72,18 +67,18 @@ class TransactionRepositoryTest {
 
     @AfterEach
     void tearDown() {
-
+/*
         transactionRepository.deleteAll();
         accountRepository.deleteAll();
         checkingAccountRepository.deleteAll();
         accountHolderRepository.deleteAll();
         userRepository.deleteAll();
-
+*/
 
     }
 
     @Test
-    void selectSumMonthsWork() throws Exception {
+    void selectSumDays_Work() throws Exception {
 
         Transaction transaction = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
         transaction.setTimeStamp(LocalDateTime.now().minusDays(10));
@@ -92,14 +87,31 @@ class TransactionRepositoryTest {
         Transaction transaction3 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
         transaction3.setTimeStamp(LocalDateTime.now().minusMonths(1));
         Transaction transaction4 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
-        transaction4.setTimeStamp(LocalDateTime.now().minusMonths(3));
+        transaction4.setTimeStamp(LocalDate.of(2020, 01,13).atStartOfDay().plusHours(3));
         Transaction transaction5 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
-        transaction5.setTimeStamp(LocalDateTime.now().minusMonths(3));
+        transaction5.setTimeStamp(LocalDate.of(2020, 01,13).atStartOfDay().plusHours(1));
         Transaction transaction6 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
-        transaction6.setTimeStamp(LocalDateTime.now().minusMonths(3));
+        transaction6.setTimeStamp(LocalDate.of(2020, 01,13).atStartOfDay().plusHours(2));
         transactionRepository.saveAll(List.of(transaction, transaction2, transaction3, transaction4, transaction5, transaction6));
 
-        assertEquals(transactionRepository.getMaxByMonth(checkingAccountRepository.findAll().get(0).getAccountId()), new BigDecimal("30.00"));
+        assertEquals(new BigDecimal("30.00"), transactionRepository.getMaxByDay(checkingAccountRepository.findAll().get(0).getAccountId()));
+
+
+    }
+   @Test
+    void selectSumLastHours_Work() throws Exception {
+
+        Transaction transaction = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
+        transaction.setTimeStamp(LocalDateTime.now().minusHours(23));
+        Transaction transaction2 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
+        transaction2.setTimeStamp(LocalDateTime.now().minusHours(2));
+        Transaction transaction3 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
+        Transaction transaction4 = new Transaction(checkingAccountRepository.findAll().get(1), checkingAccountRepository.findAll().get(0), new Money(new BigDecimal("10")));
+        transaction3.setTimeStamp(LocalDateTime.now().minusHours(1));
+
+        transactionRepository.saveAll(List.of(transaction, transaction2, transaction3, transaction4));
+
+        assertEquals(new BigDecimal("30.00"), transactionRepository.getSumLastTransactions(checkingAccountRepository.findAll().get(0).getAccountId()));
 
 
     }
