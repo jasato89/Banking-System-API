@@ -22,6 +22,10 @@ public class TransactionService implements TransactionServiceInterface {
 
     @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    StudentCheckingAccountRepository studentCheckingAccountRepository;
+    @Autowired
+    SavingsAccountRepository savingsAccountRepository;
 
     @Autowired
     CheckingAccountRepository checkingAccountRepository;
@@ -44,7 +48,6 @@ public class TransactionService implements TransactionServiceInterface {
                                     creditCard.getInterestRate()
                                             .divide(new BigDecimal("12"))))));
             creditCard.setLastInterestApplied(LocalDateTime.now());
-
 
         }
 
@@ -91,7 +94,7 @@ public class TransactionService implements TransactionServiceInterface {
         if (account instanceof CheckingAccount) {
             CheckingAccount checkingAccount = (CheckingAccount) account;
             checkStatus(checkingAccount);
-            checkFraud(checkingAccount);
+            isFraudulent(checkingAccount);
             applyMonthlyFee(checkingAccount);
             checkBalanceAndApplyExtraFees(checkingAccount);
             return checkingAccount;
@@ -99,8 +102,9 @@ public class TransactionService implements TransactionServiceInterface {
         } else if (account instanceof StudentCheckingAccount) {
             StudentCheckingAccount studentCheckingAccount = (StudentCheckingAccount) account;
             checkStatus(studentCheckingAccount);
-            checkFraud(studentCheckingAccount);
+            isFraudulent(studentCheckingAccount);
             if (!enoughFunds(studentCheckingAccount)) {
+                saveAccount(studentCheckingAccount);
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
             } else {
                 return studentCheckingAccount;
@@ -109,23 +113,32 @@ public class TransactionService implements TransactionServiceInterface {
         } else if (account instanceof CreditCard) {
             CreditCard creditCard = (CreditCard) account;
             applyInterestRate(creditCard);
-            checkFraud(creditCard);
+            isFraudulent(creditCard);
 
 
         } else if (account instanceof SavingsAccount) {
             SavingsAccount savingsAccount = (SavingsAccount) account;
             checkStatus(savingsAccount);
-            checkFraud(savingsAccount);
+            isFraudulent(savingsAccount);
 
 
         }
         return account;
     }
 
+    private void isFraudulent(CreditCard creditCard) {
+        if (transactionRepository.findTransactionBySenderAndTimeStampBetween((Account) creditCard, LocalDateTime.now().minusSeconds(1), LocalDateTime.now()).isPresent()) {
+            saveAccount(creditCard);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: You cannot transfer money now due to a potential fraud detected");
+
+        }
+    }
+
     private void checkBalanceAndApplyExtraFees(CheckingAccount checkingAccount) {
         if (checkingAccount.getAccountId().equals(transactionDTO.getSenderAccountId())) {
             if (dropsBelowMinimumBalance(checkingAccount)) {
                 if (!enoughFunds(checkingAccount)) {
+                    saveAccount(checkingAccount);
                     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
                 } else {
                     applyPenaltyFee(checkingAccount);
@@ -158,34 +171,41 @@ public class TransactionService implements TransactionServiceInterface {
                 checkingAccount.getBalance().getCurrency()));
 
         checkingAccount.setMaintenanceFeeLastTimeApplied(LocalDateTime.now());
-        accountRepository.save(checkingAccount);
+        saveAccount(checkingAccount);
 
 
     }
 
-    private void checkStatus(SavingsAccount savingsAccount) {
+    private void checkStatus(Penalizable savingsAccount) {
         if (savingsAccount.getStatus().equals(Status.FROZEN)) {
+            saveAccount((Account) savingsAccount);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account " + savingsAccount.getAccountId() + " is suspended");
         }
 
     }
 
-    private void checkStatus(StudentCheckingAccount studentCheckingAccount) {
-        if (studentCheckingAccount.getStatus().equals(Status.FROZEN)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account " + studentCheckingAccount.getAccountId() + " is suspended");
-        }
 
-    }
 
-    private void checkStatus(CheckingAccount checkingAccount) {
-        if (checkingAccount.getStatus().equals(Status.FROZEN)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account " + checkingAccount.getAccountId() + " is suspended");
+    private void isFraudulent(Penalizable senderAccount) {
+        if (transactionRepository.findTransactionBySenderAndTimeStampBetween((Account) senderAccount, LocalDateTime.now().minusSeconds(1), LocalDateTime.now()).isPresent()) {
+            senderAccount.setStatus(Status.FROZEN);
+            saveAccount((Account) senderAccount);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: Your account is now frozen due to a potential fraud detected");
+
         }
     }
 
+    private void saveAccount(Account account) {
+        if (account instanceof CheckingAccount) {
+            checkingAccountRepository.save((CheckingAccount) account);
+        } else if (account instanceof StudentCheckingAccount) {
+            studentCheckingAccountRepository.save((StudentCheckingAccount) account);
+        } else if (account instanceof CreditCard) {
+            creditCardRepository.save((CreditCard) account);
+        } else if (account instanceof SavingsAccount) {
+            savingsAccountRepository.save((SavingsAccount) account);
+        }
 
-    private boolean checkFraud(Account senderAccount) {
-        return true;
     }
 
     private boolean accountHasEnoughBalance(Account senderAccount) {

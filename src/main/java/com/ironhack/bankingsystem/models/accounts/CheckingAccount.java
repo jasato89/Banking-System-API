@@ -13,7 +13,7 @@ import java.util.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
-public class CheckingAccount extends Account {
+public class CheckingAccount extends Account implements Penalizable {
     LocalDateTime maintenanceFeeLastTimeApplied;
     @Embedded
     @AttributeOverrides({

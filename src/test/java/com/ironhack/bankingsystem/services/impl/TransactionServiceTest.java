@@ -73,13 +73,13 @@ class TransactionServiceTest {
     @AfterEach
     void tearDown() {
 
-
+/*
         transactionRepository.deleteAll();
         accountRepository.deleteAll();
         checkingAccountRepository.deleteAll();
         accountHolderRepository.deleteAll();
         userRepository.deleteAll();
-
+*/
     }
 
     @Test
@@ -208,6 +208,52 @@ class TransactionServiceTest {
                 .andExpect(status().isOk()).andReturn();
 
         assertEquals(new BigDecimal("400.00"), creditCardRepository.findAll().get(0).getBalance().getAmount());
+
+    }
+
+    @Test
+    void checkFraud_twoTransactionsInLessThanOneSecond() throws Exception {
+        CreditCard creditCard = creditCardRepository.findAll().get(0);
+        creditCard.setLastInterestApplied(LocalDateTime.now().minusMonths(12));
+        creditCardRepository.save(creditCard);
+
+        TransactionDTO transactionDTO = new TransactionDTO(creditCardRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("100"), "USD");
+        TransactionDTO transactionDTO2 = new TransactionDTO(creditCardRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("100"), "USD");
+
+        mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isOk()).andReturn();
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO2)))
+                .andExpect(status().isForbidden()).andReturn();
+
+
+    }
+
+    @Test
+    void checkFraud_twoTransactionsInLessThanOneSecond_CheckingAccount() throws Exception {
+        CheckingAccount creditCard = checkingAccountRepository.findAll().get(0);
+        checkingAccountRepository.save(creditCard);
+
+        TransactionDTO transactionDTO = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("100"), "USD");
+        TransactionDTO transactionDTO2 = new TransactionDTO(checkingAccountRepository.findAll().get(0).getAccountId(), checkingAccountRepository.findAll().get(1).getAccountId(), "Jose Perez", new BigDecimal("100"), "USD");
+
+        mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO)))
+                .andExpect(status().isOk()).andReturn();
+
+        MvcResult result = mockMvc.perform(post("/transfer")
+                .with(user(new CustomUserDetails(accountHolder1)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(transactionDTO2)))
+                .andExpect(status().isForbidden()).andReturn();
 
     }
 

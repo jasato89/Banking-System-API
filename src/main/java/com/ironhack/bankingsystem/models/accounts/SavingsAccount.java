@@ -14,7 +14,7 @@ import java.math.*;
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
 @Table(name = "savings_account")
-public class SavingsAccount extends Account {
+public class SavingsAccount extends Account implements Penalizable{
     @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5")
     @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0")
     private BigDecimal interestRate;

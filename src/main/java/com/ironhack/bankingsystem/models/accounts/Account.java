@@ -20,8 +20,6 @@ public class Account {
     private Long accountId;
     private Money balance;
     private String secretKey;
-    @ColumnDefault(value = "false")
-    private boolean isPenalized;
     @ManyToOne
     @NotNull
     @Valid
@@ -68,13 +66,6 @@ public class Account {
         this.secretKey = secretKey;
     }
 
-    public boolean isPenalized() {
-        return isPenalized;
-    }
-
-    public void setPenalized(boolean penalized) {
-        isPenalized = penalized;
-    }
 
     public AccountHolder getAccountHolder() {
         return accountHolder;
@@ -100,17 +91,4 @@ public class Account {
         this.creationDate = creationDate;
     }
 
-    @Override
-    public String toString() {
-        String result = "Account{" +
-                "accountId=" + accountId +
-                ", balance=" + balance +
-                ", secretKey='" + secretKey + '\'' +
-                ", isPenalized=" + isPenalized +
-                ", accountHolder=" + accountHolder;
-              String secondary =  ", secondaryAccountHolder=" + secondaryAccountHolder;
-              if (secondaryAccountHolder!= null) result += secondary;
-              result += ", creationDate=" + creationDate + '}';
-              return result;
-    }
 }
