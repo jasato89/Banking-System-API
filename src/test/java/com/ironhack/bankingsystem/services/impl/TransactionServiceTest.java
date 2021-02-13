@@ -73,13 +73,13 @@ class TransactionServiceTest {
     @AfterEach
     void tearDown() {
 
-/*
+
         transactionRepository.deleteAll();
         accountRepository.deleteAll();
         checkingAccountRepository.deleteAll();
         accountHolderRepository.deleteAll();
         userRepository.deleteAll();
-*/
+
     }
 
     @Test
