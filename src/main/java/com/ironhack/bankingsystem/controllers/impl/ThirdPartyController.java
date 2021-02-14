@@ -1,5 +1,6 @@
 package com.ironhack.bankingsystem.controllers.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.controllers.interfaces.*;
 import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
@@ -28,11 +29,14 @@ public class ThirdPartyController implements ThirdPartyControllerInterface {
         return thirdPartyService.createThirdParty(thirdParty);
     }
 
-    @PatchMapping("/admin/third-party-account/{id}")
-    public ThirdParty updateThirdParty(@PathVariable("id") Long id, @RequestBody @Valid ThirdParty thirdParty) {
-        return thirdPartyService.updateThirdParty(id, thirdParty);
+    @PostMapping("/third-party/send-money")
+    public void sendMoney(ThirdPartyTransactionDTO thirdPartyTransactionDTO) {
+
     }
 
+    @PostMapping("/third-party/receive-money")
+    public void receiveMoney(ThirdPartyTransactionDTO thirdPartyTransactionDTO) {
 
+    }
 
 }

@@ -37,6 +37,7 @@ public class TransactionService implements TransactionServiceInterface {
     TransactionRepository transactionRepository;
 
     TransactionDTO transactionDTO;
+
     public Money transferMoney(UserDetails userDetails, TransactionDTO transactionDTO) {
 
         this.transactionDTO = transactionDTO;
@@ -89,7 +90,7 @@ public class TransactionService implements TransactionServiceInterface {
                             .multiply(new BigDecimal(yearsBetween))
                             .multiply(
                                     savingsAccount.getInterestRate()
-                                            )));
+                            )));
             savingsAccount.setLastInterestsApplied(LocalDateTime.now());
             savingsAccountRepository.save(savingsAccount);
 
@@ -97,7 +98,6 @@ public class TransactionService implements TransactionServiceInterface {
 
         return savingsAccount;
     }
-
 
 
     private void makeTransaction(TransactionDTO transactionDTO, Account senderAccount, Account recipientAccount) {
@@ -113,7 +113,11 @@ public class TransactionService implements TransactionServiceInterface {
             checkStatus(checkingAccount);
             if (isSender(checkingAccount)) {
                 checkFraud(checkingAccount);
-
+                if (!enoughFunds(checkingAccount, transactionDTO.getTransactionAmount().getAmount())) {
+                    saveAndThrowException(checkingAccount);
+                } else {
+                    return checkingAccount;
+                }
             }
             applyMonthlyFee(checkingAccount);
             checkBalanceAndApplyExtraFees(checkingAccount);
@@ -124,7 +128,7 @@ public class TransactionService implements TransactionServiceInterface {
             checkStatus(studentCheckingAccount);
             if (isSender(studentCheckingAccount)) {
                 checkFraud(studentCheckingAccount);
-                if (!enoughFunds(studentCheckingAccount)) {
+                if (!enoughFunds(studentCheckingAccount, transactionDTO.getTransactionAmount().getAmount())) {
                     saveAndThrowException(studentCheckingAccount);
                 } else {
                     return studentCheckingAccount;
@@ -143,10 +147,9 @@ public class TransactionService implements TransactionServiceInterface {
             SavingsAccount savingsAccount = (SavingsAccount) account;
             checkStatus(savingsAccount);
             applyInterestRate(savingsAccount);
-            checkFraud(savingsAccount);
             if (isSender(savingsAccount)) {
                 checkFraud(savingsAccount);
-                if (!enoughFunds(savingsAccount)) {
+                if (!enoughFunds(savingsAccount, transactionDTO.getTransactionAmount().getAmount())) {
                     saveAndThrowException(savingsAccount);
                 }
             }
@@ -177,7 +180,7 @@ public class TransactionService implements TransactionServiceInterface {
     private void checkBalanceAndApplyExtraFees(Penalizable account) {
         if (account.getAccountId().equals(transactionDTO.getSenderAccountId())) {
             if (dropsBelowMinimumBalance(account)) {
-                if (!enoughFunds((Account) account)) {
+                if (!enoughFunds((Account) account, transactionDTO.getTransactionAmount().getAmount())) {
                     saveAccount((Account) account);
                     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
                 } else {
@@ -187,9 +190,22 @@ public class TransactionService implements TransactionServiceInterface {
         }
     }
 
+    public void checkBalanceAndApplyExtraFeesThirdParty(Penalizable account, BigDecimal amount) {
 
-    private boolean enoughFunds(Account account) {
-        return account.getBalance().getAmount().subtract(transactionDTO.getTransactionAmount().getAmount()).compareTo(BigDecimal.ZERO) > 0;
+        if (dropsBelowMinimumBalance(account)) {
+            if (!enoughFunds((Account) account, amount)) {
+                saveAccount((Account) account);
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
+            } else {
+                applyPenaltyFee(account);
+            }
+        }
+
+    }
+
+
+    public boolean enoughFunds(Account account, BigDecimal amount) {
+        return account.getBalance().getAmount().subtract(amount).compareTo(BigDecimal.ZERO) > 0;
     }
 
     private boolean dropsBelowMinimumBalance(Penalizable penalizable) {
@@ -202,7 +218,7 @@ public class TransactionService implements TransactionServiceInterface {
         return (Account) penalizable;
     }
 
-    private void applyMonthlyFee(CheckingAccount checkingAccount) {
+    public void applyMonthlyFee(CheckingAccount checkingAccount) {
         Long monthsBetween = ChronoUnit.MONTHS.between(checkingAccount.getMaintenanceFeeLastTimeApplied(), LocalDateTime.now());
 
 
@@ -217,7 +233,7 @@ public class TransactionService implements TransactionServiceInterface {
 
     }
 
-    private void checkStatus(Freezable savingsAccount) {
+    public void checkStatus(Freezable savingsAccount) {
         if (savingsAccount.getStatus().equals(Status.FROZEN)) {
             saveAccount((Account) savingsAccount);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account " + savingsAccount.getAccountId() + " is suspended");
@@ -226,7 +242,7 @@ public class TransactionService implements TransactionServiceInterface {
     }
 
 
-    private void checkFraud(Freezable senderAccount) {
+    public void checkFraud(Freezable senderAccount) {
         if (transactionRepository.findTransactionBySenderAndTimeStampBetween((Account) senderAccount, LocalDateTime.now().minusSeconds(1), LocalDateTime.now()).isPresent()) {
             senderAccount.setStatus(Status.FROZEN);
             saveAccount((Account) senderAccount);

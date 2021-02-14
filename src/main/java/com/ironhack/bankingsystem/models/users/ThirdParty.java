@@ -4,18 +4,28 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "third_party")
-public class ThirdParty extends User {
-    @PrimaryKeyJoinColumn(name = "id")
+public class ThirdParty {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String name;
     private String hashKey;
 
     public ThirdParty(String name, String hashKey) {
-        super(name, hashKey);
+        this.name = name;
+        this.hashKey = hashKey;
     }
 
     public ThirdParty() {
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long thirdPartyId) {
+        this.id = thirdPartyId;
+    }
 
     public String getName() {
         return name;
