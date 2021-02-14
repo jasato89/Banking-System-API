@@ -19,11 +19,12 @@ import java.math.*;
 import java.time.*;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @SpringBootTest
-class TransactionRepositoryTest {
+public
+class TransactionServiceTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired

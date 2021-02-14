@@ -9,7 +9,7 @@ public interface ThirdPartyControllerInterface {
 
     List<ThirdParty> getAllThirdPartyAccounts();
     ThirdParty createThirdParty(ThirdParty thirdParty);
-    void sendMoney (ThirdPartyTransactionDTO thirdPartyTransactionDTO);
-    void receiveMoney(ThirdPartyTransactionDTO thirdPartyTransactionDTO);
+    void sendMoney (String hashedKey, ThirdPartyTransactionDTO thirdPartyTransactionDTO);
+    void receiveMoney(String hashedKey, ThirdPartyTransactionDTO thirdPartyTransactionDTO);
 
 }

@@ -34,7 +34,7 @@ public class ThirdPartyService implements ThirdPartyServiceInterface {
 
     public ThirdParty createThirdParty(ThirdParty thirdParty) {
 
-        thirdParty.setHashKey(passwordEncoder.encode(thirdParty.getHashKey()));
+        thirdParty.setHashedKey(passwordEncoder.encode(thirdParty.getHashedKey()));
         return thirdPartyRepository.save(thirdParty);
     }
 
@@ -54,7 +54,7 @@ public class ThirdPartyService implements ThirdPartyServiceInterface {
         thirdPartyTransactionRepository.save(new ThirdPartyTransaction(
                 account,
                 thirdPartyRepository.findById(thirdPartyTransactionDTO.getThirdPartyId()).get(),
-                new Money(thirdPartyTransactionDTO.getAmount(), thirdPartyTransactionDTO.getCurrency())
+                new Money(thirdPartyTransactionDTO.getAmount(), thirdPartyTransactionDTO.getCurrency() == null ? Currency.getInstance("USD") : thirdPartyTransactionDTO.getCurrency())
         ));
 
 
@@ -81,7 +81,7 @@ public class ThirdPartyService implements ThirdPartyServiceInterface {
             thirdPartyTransactionRepository.save(new ThirdPartyTransaction(
                     account,
                     thirdPartyRepository.findById(thirdPartyTransactionDTO.getThirdPartyId()).get(),
-                    new Money(thirdPartyTransactionDTO.getAmount().negate(), thirdPartyTransactionDTO.getCurrency())
+                    new Money(thirdPartyTransactionDTO.getAmount().negate(), thirdPartyTransactionDTO.getCurrency() == null ? Currency.getInstance("USD") : thirdPartyTransactionDTO.getCurrency())
             ));
 
 
@@ -93,7 +93,7 @@ public class ThirdPartyService implements ThirdPartyServiceInterface {
         if (accountRepository.findById(thirdPartyTransactionDTO.getAccountId()).isPresent() && thirdPartyRepository.findById(thirdPartyTransactionDTO.getThirdPartyId()).isPresent()) {
             Account account = accountRepository.findById(thirdPartyTransactionDTO.getAccountId()).get();
             ThirdParty thirdParty = thirdPartyRepository.findById(thirdPartyTransactionDTO.getThirdPartyId()).get();
-            if (account.getSecretKey().equals(thirdPartyTransactionDTO.getSecretKey()) && thirdParty.getHashKey().equals(thirdPartyTransactionDTO.getHashedKey())) {
+            if (account.getSecretKey().equals(thirdPartyTransactionDTO.getSecretKey()) && thirdParty.getHashedKey().equals(thirdPartyTransactionDTO.getHashedKey())) {
                 return account;
             } else if (!account.getSecretKey().equals(thirdPartyTransactionDTO.getSecretKey())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Wrong Secret Key");

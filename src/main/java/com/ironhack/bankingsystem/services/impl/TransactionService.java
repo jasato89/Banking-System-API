@@ -179,7 +179,7 @@ public class TransactionService implements TransactionServiceInterface {
 
     private void checkBalanceAndApplyExtraFees(Penalizable account) {
         if (account.getAccountId().equals(transactionDTO.getSenderAccountId())) {
-            if (dropsBelowMinimumBalance(account)) {
+            if (dropsBelowMinimumBalance(account, transactionDTO.getTransactionAmount().getAmount())) {
                 if (!enoughFunds((Account) account, transactionDTO.getTransactionAmount().getAmount())) {
                     saveAccount((Account) account);
                     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
@@ -192,7 +192,7 @@ public class TransactionService implements TransactionServiceInterface {
 
     public void checkBalanceAndApplyExtraFeesThirdParty(Penalizable account, BigDecimal amount) {
 
-        if (dropsBelowMinimumBalance(account)) {
+        if (dropsBelowMinimumBalance(account, amount)) {
             if (!enoughFunds((Account) account, amount)) {
                 saveAccount((Account) account);
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
@@ -208,8 +208,8 @@ public class TransactionService implements TransactionServiceInterface {
         return account.getBalance().getAmount().subtract(amount).compareTo(BigDecimal.ZERO) > 0;
     }
 
-    private boolean dropsBelowMinimumBalance(Penalizable penalizable) {
-        return penalizable.getMinimumBalance().getAmount().compareTo(penalizable.getBalance().getAmount().subtract(transactionDTO.getTransactionAmount().getAmount())) > 0;
+    private boolean dropsBelowMinimumBalance(Penalizable penalizable, BigDecimal amount) {
+        return penalizable.getMinimumBalance().getAmount().compareTo(penalizable.getBalance().getAmount().subtract(amount)) > 0;
     }
 
 

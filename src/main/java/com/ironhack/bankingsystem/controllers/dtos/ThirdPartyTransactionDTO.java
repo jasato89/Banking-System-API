@@ -7,7 +7,6 @@ import java.util.*;
 public class ThirdPartyTransactionDTO {
     @NotNull
     Long thirdPartyId;
-    @NotNull
     private String hashedKey;
     @NotNull
     @DecimalMin("0")
@@ -18,13 +17,23 @@ public class ThirdPartyTransactionDTO {
     @NotNull
     private String secretKey;
 
-    public ThirdPartyTransactionDTO(@NotNull Long thirdPartyId, @NotNull String hashedKey, @NotNull @DecimalMin("0") BigDecimal amount, Currency currency, @NotNull Long accountId, @NotNull String secretKey) {
+    public ThirdPartyTransactionDTO(@NotNull Long thirdPartyId, String hashedKey,  @NotNull @DecimalMin("0") BigDecimal amount, Currency currency, @NotNull Long accountId, @NotNull String secretKey) {
         this.thirdPartyId = thirdPartyId;
-        this.hashedKey = hashedKey;
         this.amount = amount;
         this.currency = currency == null ? Currency.getInstance("USD") : currency;
         this.accountId = accountId;
         this.secretKey = secretKey;
+    }
+
+    public ThirdPartyTransactionDTO(@NotNull Long thirdPartyId, @NotNull @DecimalMin("0") BigDecimal amount, Currency currency, @NotNull Long accountId, @NotNull String secretKey) {
+        this.thirdPartyId = thirdPartyId;
+        this.amount = amount;
+        this.currency = currency;
+        this.accountId = accountId;
+        this.secretKey = secretKey;
+    }
+
+    public ThirdPartyTransactionDTO() {
     }
 
     public Long getThirdPartyId() {

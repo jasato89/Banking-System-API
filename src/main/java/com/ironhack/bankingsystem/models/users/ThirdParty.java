@@ -9,11 +9,11 @@ public class ThirdParty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String hashKey;
+    private String hashedKey;
 
-    public ThirdParty(String name, String hashKey) {
+    public ThirdParty(String name, String hashedKey) {
         this.name = name;
-        this.hashKey = hashKey;
+        this.hashedKey = hashedKey;
     }
 
     public ThirdParty() {
@@ -35,11 +35,11 @@ public class ThirdParty {
         this.name = name;
     }
 
-    public String getHashKey() {
-        return hashKey;
+    public String getHashedKey() {
+        return hashedKey;
     }
 
-    public void setHashKey(String hashKey) {
-        this.hashKey = hashKey;
+    public void setHashedKey(String hashKey) {
+        this.hashedKey = hashKey;
     }
 }
