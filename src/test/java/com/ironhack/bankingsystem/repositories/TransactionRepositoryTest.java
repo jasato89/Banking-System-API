@@ -55,9 +55,9 @@ class TransactionRepositoryTest {
         accountHolder2 = new AccountHolder("jasato2", pwdEnconder.encode("12345"), "Jose Perez", LocalDate.of(2000, 1, 15).atStartOfDay(), new Address("Spain", "Barcelona", "Las Ramblas", 10, "47890"));
         accountHolderRepository.saveAll(List.of(accountHolder1, accountHolder2));
         //    public CheckingAccount(Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
-        CheckingAccount account1 = new CheckingAccount(new Money(new BigDecimal("500")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(0), null, null, null);
-        CheckingAccount account2 = new CheckingAccount(new Money(new BigDecimal("10000")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(1), null, null, null);
-        CheckingAccount account3 = new CheckingAccount(new Money(new BigDecimal("480")), pwdEnconder.encode("1234"), accountHolder1, null, null, null);
+        CheckingAccount account1 = new CheckingAccount(new Money(new BigDecimal("500")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(0), null);
+        CheckingAccount account2 = new CheckingAccount(new Money(new BigDecimal("10000")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(1), null);
+        CheckingAccount account3 = new CheckingAccount(new Money(new BigDecimal("480")), pwdEnconder.encode("1234"), accountHolder1, null);
         //    public CreditCard(Money balance, String secretKey,  @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money creditLimit,  BigDecimal interestRate)
         CreditCard creditCard1 = new CreditCard(new Money(new BigDecimal("500")), pwdEnconder.encode("1234"), accountHolderRepository.findAll().get(0), null, null, null);
         checkingAccountRepository.saveAll(List.of(account1, account2, account3));
@@ -67,13 +67,13 @@ class TransactionRepositoryTest {
 
     @AfterEach
     void tearDown() {
-/*
+
         transactionRepository.deleteAll();
         accountRepository.deleteAll();
         checkingAccountRepository.deleteAll();
         accountHolderRepository.deleteAll();
         userRepository.deleteAll();
-*/
+
 
     }
 
@@ -94,7 +94,7 @@ class TransactionRepositoryTest {
         transaction6.setTimeStamp(LocalDate.of(2020, 01,13).atStartOfDay().plusHours(2));
         transactionRepository.saveAll(List.of(transaction, transaction2, transaction3, transaction4, transaction5, transaction6));
 
-        assertEquals(new BigDecimal("30.00"), transactionRepository.getMaxByDay(checkingAccountRepository.findAll().get(0).getAccountId()));
+        assertEquals(new BigDecimal("30.00"), transactionRepository.getMaxByDay(checkingAccountRepository.findAll().get(0).getAccountId()).get());
 
 
     }
@@ -111,7 +111,7 @@ class TransactionRepositoryTest {
 
         transactionRepository.saveAll(List.of(transaction, transaction2, transaction3, transaction4));
 
-        assertEquals(new BigDecimal("30.00"), transactionRepository.getSumLastTransactions(checkingAccountRepository.findAll().get(0).getAccountId()));
+        assertEquals(new BigDecimal("30.00"), transactionRepository.getSumLastTransactions(checkingAccountRepository.findAll().get(0).getAccountId()).get());
 
 
     }

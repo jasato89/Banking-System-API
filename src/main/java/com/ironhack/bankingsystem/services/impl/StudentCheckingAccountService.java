@@ -1,10 +1,15 @@
 package com.ironhack.bankingsystem.services.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.models.accounts.*;
+import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
+import com.ironhack.bankingsystem.utils.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
@@ -13,18 +18,37 @@ import java.util.*;
 @Service
 public class StudentCheckingAccountService implements StudentCheckingAccountServiceInterface {
 
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @Autowired
+    AccountHolderRepository accountHolderRepository;
 
     @Autowired
     StudentCheckingAccountRepository studentCheckingAccountRepository;
 
-    public StudentCheckingAccount createStudentCheckingAccount(StudentCheckingAccount studentCheckingAccount) {
+    public StudentCheckingAccount createStudentCheckingAccount(CheckingAccountDTO checkingAccountDTO) {
 
-        if (studentCheckingAccountRepository.findById(studentCheckingAccount.getAccountId()).isPresent()) {
+        AccountHolder accountHolder;
+        AccountHolder secondaryAccountHolder = null;
 
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Student Checking Account with id " + studentCheckingAccount.getAccountId() + " already exists in the database");
+        if (accountHolderRepository.findById(checkingAccountDTO.getAccountHolderId()).isPresent()) {
+            accountHolder = accountHolderRepository.findById(checkingAccountDTO.getAccountHolderId()).get();
         } else {
-            return studentCheckingAccountRepository.save(studentCheckingAccount);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "AccountHolder with id " + checkingAccountDTO.getAccountHolderId() + " doesn't exist in the database");
         }
+
+        if (checkingAccountDTO.getSecondaryAccountHolderId() != null && accountHolderRepository.findById(checkingAccountDTO.getSecondaryAccountHolderId()).isPresent()) {
+            secondaryAccountHolder = accountHolderRepository.findById(checkingAccountDTO.getSecondaryAccountHolderId()).get();
+        }
+
+        StudentCheckingAccount studentCheckingAccount = new StudentCheckingAccount(
+                new Money(checkingAccountDTO.getBalance(), checkingAccountDTO.getCurrency()),
+                passwordEncoder.encode(checkingAccountDTO.getSecretKey()),
+                accountHolder,
+                secondaryAccountHolder);
+
+        return studentCheckingAccountRepository.save(studentCheckingAccount);
+
     }
 
     public StudentCheckingAccount updateStudentCheckingAccount(Long id, StudentCheckingAccount studentCheckingAccount) {
@@ -32,7 +56,7 @@ public class StudentCheckingAccountService implements StudentCheckingAccountServ
             studentCheckingAccount.setAccountId(studentCheckingAccountRepository.findById(id).get().getAccountId());
             return studentCheckingAccountRepository.save(studentCheckingAccount);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student Checking Account with id " + id + " doesn't in the database");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student Checking Account with id " + id + " doesn't exist in the database");
 
         }
     }

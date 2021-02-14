@@ -1,5 +1,6 @@
 package com.ironhack.bankingsystem.controllers.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.controllers.interfaces.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
@@ -25,7 +26,7 @@ public class StudentCheckingAccountController implements StudentCheckingAccountC
 
     @PostMapping("/admin/student-checking-account/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public StudentCheckingAccount createStudentCheckingAccount(@RequestBody @Valid StudentCheckingAccount studentCheckingAccount) {
+    public StudentCheckingAccount createStudentCheckingAccount(@RequestBody @Valid CheckingAccountDTO studentCheckingAccount) {
         return studentAccountService.createStudentCheckingAccount(studentCheckingAccount);
     }
 

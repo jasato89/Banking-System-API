@@ -1,10 +1,15 @@
 package com.ironhack.bankingsystem.services.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.models.accounts.*;
+import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
+import com.ironhack.bankingsystem.utils.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
@@ -21,25 +26,48 @@ public class CheckingAccountService implements CheckingAccountServiceInterface {
     @Autowired
     StudentCheckingAccountRepository studentCheckingAccountRepository;
 
-    public Account createCheckingAccount(CheckingAccount checkingAccount) {
+    @Autowired
+    AccountHolderRepository accountHolderRepository;
 
-        if (checkingAccountRepository.findById(checkingAccount.getAccountId()).isPresent()) {
 
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Checking account with id " + checkingAccount.getAccountId() + " already exists in the database");
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public Account createCheckingAccount(CheckingAccountDTO checkingAccountDTO) {
+
+        AccountHolder accountHolder;
+        AccountHolder secondaryAccountHolder = null;
+
+
+        if (checkingAccountDTO.getCurrency() == null) {
+            checkingAccountDTO.setCurrency(Currency.getInstance("USD"));
+        }
+        if (!accountHolderRepository.findById(checkingAccountDTO.getAccountHolderId()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Checking account with id " + checkingAccountDTO.getAccountHolderId() + " doesn't in the database");
         } else {
+            accountHolder = accountHolderRepository.findById(checkingAccountDTO.getAccountHolderId()).get();
+        }
 
-            CheckingAccount checking = checkingAccount;
-            if (ChronoUnit.YEARS.between(checking.getAccountHolder().getDateOfBirth(), LocalDateTime.now()) < 24) {
-                    StudentCheckingAccount studentCheckingAccount = new StudentCheckingAccount(checking.getBalance(), checking.getSecretKey(), checking.getAccountHolder(), checking.getSecondaryAccountHolder());
-                    return studentCheckingAccountRepository.save(studentCheckingAccount);
-
+        if (checkingAccountDTO.getSecondaryAccountHolderId() != null) {
+            if (!accountHolderRepository.findById(checkingAccountDTO.getSecondaryAccountHolderId()).isPresent()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Checking account with id " + checkingAccountDTO.getSecondaryAccountHolderId() + " doesn't in the database");
             } else {
+                secondaryAccountHolder = accountHolderRepository.findById(checkingAccountDTO.getSecondaryAccountHolderId()).get();
 
-                return checkingAccountRepository.save(checkingAccount);
             }
 
-
         }
+
+        CheckingAccount checkingAccount = new CheckingAccount(new Money(checkingAccountDTO.getBalance(), checkingAccountDTO.getCurrency()), passwordEncoder.encode(checkingAccountDTO.getSecretKey()),  accountHolder, secondaryAccountHolder);
+        if (ChronoUnit.YEARS.between(checkingAccount.getAccountHolder().getDateOfBirth(), LocalDateTime.now()) < 24) {
+            StudentCheckingAccount studentCheckingAccount = new StudentCheckingAccount(checkingAccount.getBalance(), checkingAccount.getSecretKey(), checkingAccount.getAccountHolder(), checkingAccount.getSecondaryAccountHolder());
+            return studentCheckingAccountRepository.save(studentCheckingAccount);
+
+        } else {
+
+            return checkingAccountRepository.save(checkingAccount);
+        }
+
+
     }
 
     public CheckingAccount updateCheckingAccount(Long id, CheckingAccount checkingAccount) {

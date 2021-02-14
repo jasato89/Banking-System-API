@@ -38,9 +38,11 @@ public class AccountHolder extends User{
     })
     private Address mailingAddress;
 
+    @JsonIgnore
     @OneToMany( mappedBy = "accountHolder")
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Account> primaryAccounts;
+    @JsonIgnore
     @OneToMany(mappedBy = "secondaryAccountHolder")
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<Account> secondaryAccounts;

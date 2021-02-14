@@ -64,11 +64,11 @@ class AccountControllerTest {
 
     @AfterEach
     void tearDown() {
-
+/*
         accountRepository.deleteAll();
         accountHolderRepository.deleteAll();
         userRepository.deleteAll();
-
+*/
     }
 
     @Test

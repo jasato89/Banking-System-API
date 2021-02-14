@@ -35,10 +35,10 @@ public class CheckingAccount extends Account implements Penalizable {
     }
 
 
-    public CheckingAccount(Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
+    public CheckingAccount(Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder) {
         super(balance, secretKey, accountHolder, secondaryAccountHolder);
-        setMinimumBalance(minimumBalance);
-        setMonthlyMaintenanceFee(monthlyMaintenanceFee);
+        this.minimumBalance = new Money(Constants.CHECKING_ACC_MIN_BALANCE);
+        this.monthlyMaintenanceFee = new Money(Constants.CHECKING_ACC_DEFFAULT_MONTHLY_FEE);
         status = Status.ACTIVE;
         maintenanceFeeLastTimeApplied = LocalDateTime.now();
     }
@@ -49,7 +49,7 @@ public class CheckingAccount extends Account implements Penalizable {
     }
 
     public void setMinimumBalance(Money minimumBalance) {
-        this.minimumBalance = minimumBalance == null ? new Money(Constants.CHECKING_ACC_MIN_BALANCE) : minimumBalance;
+        this.minimumBalance = minimumBalance;
     }
 
     public Money getMonthlyMaintenanceFee() {
@@ -57,7 +57,7 @@ public class CheckingAccount extends Account implements Penalizable {
     }
 
     public void setMonthlyMaintenanceFee(Money monthlyMaintenanceFee) {
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee == null ? new Money(Constants.CHECKING_ACC_DEFFAULT_MONTHLY_FEE) : monthlyMaintenanceFee;
+        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
     }
 
     public Status getStatus() {
