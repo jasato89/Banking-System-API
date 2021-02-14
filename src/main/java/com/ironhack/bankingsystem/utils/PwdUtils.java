@@ -17,7 +17,8 @@ public class PwdUtils {
         ObjectMapper objectMapper = new ObjectMapper();
         CheckingAccountDTO checkingAccountDTO = new CheckingAccountDTO(new BigDecimal("200"), Currency.getInstance("USD"), "jasato", 1l, null);
 
-        System.out.println(objectMapper.writeValueAsString(checkingAccountDTO));
+        System.out.println(objectMapper.writeValueAsString(new AccountHolderDTO("jasato123123", "123123",
+                "13-01-1989", "Jaume Sánchez", new Address("Calle Murillo","Madrid", "Sapin", 14, "05632"), new Address("Calle Murillo","Madrid", "Sapin", 14, "05632"))));
 
         System.out.println(passwordEncoder.encode("1234"));
         int months = Period.between(LocalDate.of(2021, 02, 01), LocalDate.now()).getMonths();

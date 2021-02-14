@@ -1,6 +1,5 @@
 package com.ironhack.bankingsystem.controllers.impl;
 
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.models.accounts.*;
@@ -67,10 +66,10 @@ class ThirdPartyControllerTest {
 
     @AfterEach
     void tearDown() {
-      /*  thirdPartyTransactionRepository.deleteAll();
+        thirdPartyTransactionRepository.deleteAll();
         checkingAccountRepository.deleteAll();
         accountHolderRepository.deleteAll();
-        thirdPartyRepository.deleteAll();*/
+        thirdPartyRepository.deleteAll();
     }
 
     @Test
@@ -94,7 +93,6 @@ class ThirdPartyControllerTest {
 
     @Test
     void sendMoney() throws Exception {
-        //    public ThirdPartyTransactionDTO(@NotNull Long thirdPartyId, @NotNull @DecimalMin("0") BigDecimal amount, Currency currency, @NotNull Long accountId, @NotNull String secretKey) {
         ThirdPartyTransactionDTO thirdPartyTransactionDTO = new ThirdPartyTransactionDTO(
                 thirdPartyRepository.findAll().get(0).getId(),
                 new BigDecimal("10"),

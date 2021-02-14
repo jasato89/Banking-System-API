@@ -9,8 +9,7 @@ import java.util.*;
 public interface AccountHolderControllerInterface {
 
     List<AccountHolderInformationDTO> getAllAccountHolders();
-    AccountHolder createAccountHolder (AccountHolder accountHolder);
-    AccountHolder updateDetails (Long id, AccountHolder account);
+    AccountHolder createAccountHolder (AccountHolderDTO accountHolder);
 
 
 

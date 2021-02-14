@@ -19,13 +19,10 @@ import java.util.*;
 @PrimaryKeyJoinColumn(name = "id")
 public class AccountHolder extends User{
 
-    @NotNull(message = "Date of birth required")
     private LocalDateTime dateOfBirth;
-    @NotNull(message = "Name required")
     private String name;
     @Valid
     @Embedded
-    @NotNull(message = "Address required")
     private Address primaryAddress;
     @Embedded
     @Valid
@@ -52,7 +49,7 @@ public class AccountHolder extends User{
 
     }
 
-    public AccountHolder(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password, @NotBlank(message = "Name required") String name, @NotNull(message = "Date of birth required") LocalDateTime dateOfBirth, @Valid @NotNull(message = "Address required") Address address) {
+    public AccountHolder(String username,  String password,  String name, LocalDateTime dateOfBirth, Address address) {
         super(username, password);
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = address;
@@ -60,7 +57,7 @@ public class AccountHolder extends User{
         super.setRole("ACCOUNT_HOLDER");
     }
 
-    public AccountHolder(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password, @NotBlank(message = "Name required") String name, @NotNull(message = "Date of birth required") LocalDateTime dateOfBirth, @Valid @NotNull(message = "Address required") Address primaryAddress, @Valid Address mailingAddress) {
+    public AccountHolder( String username, String password,  String name,  LocalDateTime dateOfBirth,  Address primaryAddress, @Valid Address mailingAddress) {
         super(username, password);
         this.dateOfBirth = dateOfBirth;
         this.primaryAddress = primaryAddress;

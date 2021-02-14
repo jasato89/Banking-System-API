@@ -42,8 +42,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .mvcMatchers(HttpMethod.POST, "/third-party/receive-money").permitAll()
                 .mvcMatchers(HttpMethod.POST, "/third-party/send-money").permitAll()
                 .antMatchers(HttpMethod.GET, "/my-accounts/**").hasRole("ACCOUNT_HOLDER")
-                .antMatchers(HttpMethod.POST, "/transfer").hasAnyRole("ACCOUNT_HOLDER", "THIRDPARTY")
+                .antMatchers(HttpMethod.POST, "/transfer").hasAnyRole("ACCOUNT_HOLDER")
                 .mvcMatchers(HttpMethod.POST, "/**").hasRole("ADMIN")
+                .mvcMatchers(HttpMethod.GET, "/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.PATCH, "/**").hasRole("ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN");
         http.csrf().disable();

@@ -6,6 +6,8 @@ import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.core.context.*;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.*;
@@ -31,6 +33,8 @@ public class CheckingAccountController implements CheckingAccountControllerInter
 
     @PostMapping("/admin/checking-account/{id}")
     public CheckingAccount updateCheckingAccount(@PathVariable Long id, @RequestBody CheckingAccount checkingAccount) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
 
         return checkingAccountService.updateCheckingAccount(id, checkingAccount);
     }

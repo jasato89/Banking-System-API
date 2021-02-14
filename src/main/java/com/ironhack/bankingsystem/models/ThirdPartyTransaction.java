@@ -8,6 +8,7 @@ import javax.persistence.*;
 import java.time.*;
 
 @Entity
+@Table(name = "third_party_transaction")
 public class ThirdPartyTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +27,11 @@ public class ThirdPartyTransaction {
         this.account = account;
         this.thirdParty = thirdParty;
         this.amount = amount;
+        timeStamp = LocalDateTime.now();
     }
 
     public ThirdPartyTransaction() {
+        timeStamp = LocalDateTime.now();
     }
 
     public Long getId() {

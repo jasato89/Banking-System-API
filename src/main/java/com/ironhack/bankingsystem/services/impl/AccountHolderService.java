@@ -9,6 +9,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
+import java.time.*;
+import java.time.format.*;
 import java.util.*;
 
 @Service
@@ -33,12 +35,23 @@ public class AccountHolderService implements AccountHolderServiceInterface {
         return result;
     }
 
-    public AccountHolder createAccountHolder(AccountHolder accountHolder) {
+    public AccountHolder createAccountHolder(AccountHolderDTO accountHolder) {
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate localDate = LocalDate.parse(accountHolder.getDateOfBirth(), dateTimeFormatter);
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, LocalTime.of(0,0));
 
         if (accountHolderRepository.findByUsername(accountHolder.getUsername()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A user with this username already exists in the database");
         } else {
-            return accountHolderRepository.save(accountHolder);
+            return accountHolderRepository.save(new AccountHolder(
+                    accountHolder.getUsername(),
+                    accountHolder.getPassword(),
+                    accountHolder.getName(),
+                    localDateTime,
+                    accountHolder.getPrimaryAddress(),
+                    accountHolder.getMailingAddress()
+            ));
         }
 
     }

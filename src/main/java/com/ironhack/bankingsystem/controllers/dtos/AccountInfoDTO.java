@@ -8,7 +8,6 @@ public class AccountInfoDTO {
 
     private Long accountId;
     private Money balance;
-    private boolean isPenalized;
     private AccountHolderInformationDTO accountHolder;
     private AccountHolderInformationDTO secondaryAccountHolder;
     private LocalDateTime creationDate;
@@ -40,13 +39,6 @@ public class AccountInfoDTO {
         this.balance = balance;
     }
 
-    public boolean isPenalized() {
-        return isPenalized;
-    }
-
-    public void setPenalized(boolean penalized) {
-        isPenalized = penalized;
-    }
 
     public AccountHolderInformationDTO getAccountHolder() {
         return accountHolder;

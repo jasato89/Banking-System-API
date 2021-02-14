@@ -93,6 +93,8 @@ class AccountControllerTest {
 
     @Test
     void getAllAccountsFromUser() {
+
+        assertEquals(2, accountRepository.findAccountsByAccountHolderId(accountHolderRepository.findAll().get(0).getId()).size());
     }
 
     @Test

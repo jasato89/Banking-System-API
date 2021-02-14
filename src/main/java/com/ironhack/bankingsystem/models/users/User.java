@@ -14,9 +14,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull(message = "Username required")
     private String username;
-    @NotNull(message = "Password required")
     private String password;
 
     @JsonIgnore
@@ -26,7 +24,7 @@ public class User {
     public User() {
     }
 
-    public User(@NotNull(message = "Username required") String username, @NotNull(message = "Password required") String password) {
+    public User( String username, String password) {
         this.username = username;
         this.password = password;
 
