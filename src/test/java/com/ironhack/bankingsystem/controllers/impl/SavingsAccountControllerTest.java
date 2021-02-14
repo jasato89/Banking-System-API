@@ -20,6 +20,7 @@ import java.math.*;
 import java.time.*;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -41,6 +42,8 @@ class SavingsAccountControllerTest {
     UserRepository userRepository;
     @Autowired
     AccountHolderRepository accountHolderRepository;
+    @Autowired
+    SavingsAccountRepository savingsAccountRepository;
     @Autowired
     CreditCardRepository creditCardRepository;
     PasswordEncoder pwdEnconder = new BCryptPasswordEncoder();
@@ -92,6 +95,30 @@ class SavingsAccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(savingsAccountDTO)))
                 .andExpect(status().isCreated()).andReturn();
+    }
+
+
+    @Test
+    void createSavingsAccount_nullCurrency_works() throws Exception {
+
+        SavingsAccountDTO savingsAccountDTO = new SavingsAccountDTO(
+                new BigDecimal("10000"),
+                null,
+                "sdasdasdad",
+                accountHolderRepository.findAll().get(0).getId(),
+                null,
+                null,
+                null
+        );
+
+
+        MvcResult result = mockMvc.perform(post("/admin/savings-account/new")
+                .with(user(new CustomUserDetails(admin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(savingsAccountDTO)))
+                .andExpect(status().isCreated()).andReturn();
+
+        assertEquals(Currency.getInstance("USD"), savingsAccountRepository.findAll().get(0).getBalance().getCurrency());
     }
 
 

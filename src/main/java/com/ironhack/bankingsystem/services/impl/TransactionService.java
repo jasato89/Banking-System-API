@@ -36,20 +36,18 @@ public class TransactionService implements TransactionServiceInterface {
     @Autowired
     TransactionRepository transactionRepository;
 
-    TransactionDTO transactionDTO;
 
     public Money transferMoney(UserDetails userDetails, TransactionDTO transactionDTO) {
 
-        this.transactionDTO = transactionDTO;
 
-        if (accountsArePresent()) {
+        if (accountsArePresent(transactionDTO)) {
 
-            Account senderAccount = getSenderAccount();
+            Account senderAccount = getSenderAccount(transactionDTO);
 
             if (accountHasPermissions(senderAccount, userDetails)) {
 
-                senderAccount = evaluateAccounts(senderAccount);
-                Account recipientAccount = evaluateAccounts(getRecipientAccount());
+                senderAccount = evaluateAccounts(senderAccount, transactionDTO);
+                Account recipientAccount = evaluateAccounts(getRecipientAccount(transactionDTO), transactionDTO);
                 makeTransaction(transactionDTO, senderAccount, recipientAccount);
                 return transactionDTO.getTransactionAmount();
 
@@ -106,12 +104,12 @@ public class TransactionService implements TransactionServiceInterface {
         transactionRepository.save(new Transaction(senderAccount, recipientAccount, transactionDTO.getTransactionAmount()));
     }
 
-    private Account evaluateAccounts(Account account) {
+    private Account evaluateAccounts(Account account, TransactionDTO transactionDTO) {
 
         if (account instanceof CheckingAccount) {
             CheckingAccount checkingAccount = (CheckingAccount) account;
             checkStatus(checkingAccount);
-            if (isSender(checkingAccount)) {
+            if (isSender(checkingAccount, transactionDTO)) {
                 checkFraud(checkingAccount);
                 if (!enoughFunds(checkingAccount, transactionDTO.getTransactionAmount().getAmount())) {
                     saveAndThrowException(checkingAccount);
@@ -120,13 +118,13 @@ public class TransactionService implements TransactionServiceInterface {
                 }
             }
             applyMonthlyFee(checkingAccount);
-            checkBalanceAndApplyExtraFees(checkingAccount);
+            checkBalanceAndApplyExtraFees(checkingAccount, transactionDTO);
             return checkingAccount;
 
         } else if (account instanceof StudentCheckingAccount) {
             StudentCheckingAccount studentCheckingAccount = (StudentCheckingAccount) account;
             checkStatus(studentCheckingAccount);
-            if (isSender(studentCheckingAccount)) {
+            if (isSender(studentCheckingAccount, transactionDTO)) {
                 checkFraud(studentCheckingAccount);
                 if (!enoughFunds(studentCheckingAccount, transactionDTO.getTransactionAmount().getAmount())) {
                     saveAndThrowException(studentCheckingAccount);
@@ -147,7 +145,7 @@ public class TransactionService implements TransactionServiceInterface {
             SavingsAccount savingsAccount = (SavingsAccount) account;
             checkStatus(savingsAccount);
             applyInterestRate(savingsAccount);
-            if (isSender(savingsAccount)) {
+            if (isSender(savingsAccount, transactionDTO)) {
                 checkFraud(savingsAccount);
                 if (!enoughFunds(savingsAccount, transactionDTO.getTransactionAmount().getAmount())) {
                     saveAndThrowException(savingsAccount);
@@ -164,7 +162,7 @@ public class TransactionService implements TransactionServiceInterface {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
     }
 
-    private boolean isSender(Account account) {
+    private boolean isSender(Account account, TransactionDTO transactionDTO) {
         return account.getAccountId().equals(transactionDTO.getSenderAccountId());
 
     }
@@ -177,7 +175,7 @@ public class TransactionService implements TransactionServiceInterface {
         }
     }
 
-    private void checkBalanceAndApplyExtraFees(Penalizable account) {
+    private void checkBalanceAndApplyExtraFees(Penalizable account, TransactionDTO transactionDTO) {
         if (account.getAccountId().equals(transactionDTO.getSenderAccountId())) {
             if (dropsBelowMinimumBalance(account, transactionDTO.getTransactionAmount().getAmount())) {
                 if (!enoughFunds((Account) account, transactionDTO.getTransactionAmount().getAmount())) {
@@ -279,15 +277,15 @@ public class TransactionService implements TransactionServiceInterface {
     }
 
 
-    private Account getRecipientAccount() {
+    private Account getRecipientAccount(TransactionDTO transactionDTO) {
         return accountRepository.findById(transactionDTO.getRecipientAccountId()).get();
     }
 
-    private Account getSenderAccount() {
+    private Account getSenderAccount(TransactionDTO transactionDTO) {
         return accountRepository.findById(transactionDTO.getSenderAccountId()).get();
     }
 
-    private boolean accountsArePresent() {
+    private boolean accountsArePresent(TransactionDTO transactionDTO) {
         return accountRepository.findById(transactionDTO.getSenderAccountId()).isPresent()
                 && accountRepository.findById(transactionDTO.getRecipientAccountId()).isPresent();
     }

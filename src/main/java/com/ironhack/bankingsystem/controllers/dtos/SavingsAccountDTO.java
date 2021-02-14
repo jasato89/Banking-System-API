@@ -27,7 +27,7 @@ public class SavingsAccountDTO {
 
     public SavingsAccountDTO(@NotNull @DecimalMin("0") BigDecimal balance, Currency currency, @NotNull String secretKey, @NotNull Long accountHolderId, Long secondaryAccountHolderId, @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5") @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0") BigDecimal interestRate, @DecimalMax(value = "1000", message = "Minimum balance must be below 0.5") @DecimalMin(value = "100", message = "Minimum balance must be above 0 or 0") BigDecimal minimumBalance) {
         this.balance = balance;
-        this.currency = currency;
+        this.currency = currency == null ? Currency.getInstance("USD") : currency;
         this.secretKey = secretKey;
         this.accountHolderId = accountHolderId;
         this.secondaryAccountHolderId = secondaryAccountHolderId;

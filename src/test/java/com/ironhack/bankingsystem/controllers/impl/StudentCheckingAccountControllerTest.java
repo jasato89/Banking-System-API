@@ -94,5 +94,59 @@ class StudentCheckingAccountControllerTest {
     }
 
 
+  @Test
+    void createStudentCheckingAccount_nullSecretKey_throwsException() throws Exception {
+
+        CheckingAccountDTO checkingAccountDTO = new CheckingAccountDTO(
+                new BigDecimal("200"),
+                Currency.getInstance("USD"),
+                null,
+                accountHolderRepository.findAll().get(0).getId(),
+                null
+        );
+
+        MvcResult result = mockMvc.perform(post("/admin/student-checking-account/new")
+                .with(user(new CustomUserDetails(admin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(checkingAccountDTO)))
+                .andExpect(status().isBadRequest()).andReturn();
+    }
+
+  @Test
+    void createStudentCheckingAccount_negativeBalance_throwsException() throws Exception {
+
+        CheckingAccountDTO checkingAccountDTO = new CheckingAccountDTO(
+                new BigDecimal("-200"),
+                Currency.getInstance("USD"),
+                "12345",
+                accountHolderRepository.findAll().get(0).getId(),
+                null
+        );
+
+        MvcResult result = mockMvc.perform(post("/admin/student-checking-account/new")
+                .with(user(new CustomUserDetails(admin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(checkingAccountDTO)))
+                .andExpect(status().isBadRequest()).andReturn();
+    }
+
+ @Test
+    void createStudentCheckingAccount_accountHolderDoesntExist_throwsException() throws Exception {
+
+        CheckingAccountDTO checkingAccountDTO = new CheckingAccountDTO(
+                new BigDecimal("-200"),
+                Currency.getInstance("USD"),
+                "12345",
+                0l,
+                null
+        );
+
+        MvcResult result = mockMvc.perform(post("/admin/student-checking-account/new")
+                .with(user(new CustomUserDetails(admin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(checkingAccountDTO)))
+                .andExpect(status().isBadRequest()).andReturn();
+    }
+
 
 }
