@@ -83,8 +83,34 @@ class AccountHolderControllerTest {
                 .andExpect(status().isCreated()).andReturn();
     }
 
+    @Test
+    void createAccountHolder_wrongDateFormat() throws Exception {
+
+        accountHolderDTO = new AccountHolderDTO("jasato123123", "123123",
+                "13/01/1989", "Jaume Sánchez", new Address("Calle Murillo", "Madrid", "Sapin", 14, "05632"), new Address("Calle Murillo", "Madrid", "Sapin", 14, "05632"));
+
+
+        MvcResult result = mockMvc.perform(post("/admin/create-account-holder")
+                .with(user(new CustomUserDetails(admin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(accountHolderDTO)))
+                .andExpect(status().isBadRequest()).andReturn();
+    }
 
     @Test
-    void updateDetails() {
+    void createAccountHolder_noAddress_throwsException() throws Exception {
+
+        accountHolderDTO = new AccountHolderDTO("jasato123123", "123123",
+                "13/01/1989", "Jaume Sánchez", null, new Address("Calle Murillo", "Madrid", "Sapin", 14, "05632"));
+
+
+        MvcResult result = mockMvc.perform(post("/admin/create-account-holder")
+                .with(user(new CustomUserDetails(admin)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(accountHolderDTO)))
+                .andExpect(status().isBadRequest()).andReturn();
     }
+
+
+
 }

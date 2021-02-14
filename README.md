@@ -17,7 +17,7 @@ This REST API allows you to recreate a banking system with the following functio
 
 To run this project locally do the following after cloning the project:
 
-1. Create two databases: `bankingsys` and `bankingsys_test`
+1. Create the database: `bankingsys`
 2. Edit the application.properties file in both the /main folder and the /test folder  and insert your own credentials
 3. Launch the application by running `mvn spring-boot:run` in your terminal (point your terminal towards your project folder) 
 
