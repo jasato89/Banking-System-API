@@ -27,7 +27,7 @@ public class CreditCardController implements CreditCardControllerInterface {
 
 
     @PostMapping("/credit-card/new")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public CreditCard createCreditCardAccount(@RequestBody @Valid CreditCardDTO creditCard) {
 
         return creditCardService.createCreditCardAccount(creditCard);

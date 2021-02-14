@@ -37,9 +37,16 @@ public class AccountHolderService implements AccountHolderServiceInterface {
 
     public AccountHolder createAccountHolder(AccountHolderDTO accountHolder) {
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        LocalDate localDate = LocalDate.parse(accountHolder.getDateOfBirth(), dateTimeFormatter);
-        LocalDateTime localDateTime = LocalDateTime.of(localDate, LocalTime.of(0,0));
+        LocalDateTime localDateTime;
+        try {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            LocalDate localDate = LocalDate.parse(accountHolder.getDateOfBirth(), dateTimeFormatter);
+            localDateTime = LocalDateTime.of(localDate, LocalTime.of(0, 0));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date format: valid date format is : dd-mm-yyyy");
+
+        }
+
 
         if (accountHolderRepository.findByUsername(accountHolder.getUsername()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A user with this username already exists in the database");
