@@ -37,6 +37,32 @@ public class TransactionService implements TransactionServiceInterface {
     TransactionRepository transactionRepository;
 
     TransactionDTO transactionDTO;
+    public Money transferMoney(UserDetails userDetails, TransactionDTO transactionDTO) {
+
+        this.transactionDTO = transactionDTO;
+
+        if (accountsArePresent()) {
+
+            Account senderAccount = getSenderAccount();
+
+            if (accountHasPermissions(senderAccount, userDetails)) {
+
+                senderAccount = evaluateAccounts(senderAccount);
+                Account recipientAccount = evaluateAccounts(getRecipientAccount());
+                makeTransaction(transactionDTO, senderAccount, recipientAccount);
+                return transactionDTO.getTransactionAmount();
+
+            } else {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have rights to make transfers from this account");
+            }
+        } else {
+            if (!accountRepository.findById(transactionDTO.getSenderAccountId()).isPresent()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sorry, but the account you are trying to transfer funds from does not exist in the database");
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sorry, but the account you are trying to transfer funds to does not exist in the database");
+            }
+        }
+    }
 
     public static CreditCard applyInterestRate(CreditCard creditCard) {
         Long monthsBetween = ChronoUnit.MONTHS.between(creditCard.getLastInterestApplied(), LocalDateTime.now());
@@ -54,33 +80,7 @@ public class TransactionService implements TransactionServiceInterface {
         return creditCard;
     }
 
-    public Money transferMoney(UserDetails userDetails, TransactionDTO transactionDTO) {
 
-        this.transactionDTO = transactionDTO;
-
-        if (accountsArePresent()) {
-
-            Account senderAccount = getSenderAccount();
-
-            if (accountHasPermissions(senderAccount, userDetails)) {
-                senderAccount = evaluateAccounts(senderAccount);
-                Account recipientAccount = evaluateAccounts(getRecipientAccount());
-                makeTransaction(transactionDTO, senderAccount, recipientAccount);
-                return transactionDTO.getTransactionAmount();
-
-            } else {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have rights to make transfers from this account");
-            }
-        } else {
-            if (!accountRepository.findById(transactionDTO.getSenderAccountId()).isPresent()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sorry, but the account you are trying to transfer funds from does not exist in the database");
-            } else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sorry, but the account you are trying to transfer funds to does not exist in the database");
-            }
-
-        }
-
-    }
 
     private void makeTransaction(TransactionDTO transactionDTO, Account senderAccount, Account recipientAccount) {
         senderAccount.setBalance(new Money(senderAccount.getBalance().getAmount().subtract(transactionDTO.getTransactionAmount().getAmount()), senderAccount.getBalance().getCurrency()));
@@ -95,6 +95,7 @@ public class TransactionService implements TransactionServiceInterface {
             checkStatus(checkingAccount);
             if (isSender(checkingAccount)) {
                 checkFraud(checkingAccount);
+
             }
             applyMonthlyFee(checkingAccount);
             checkBalanceAndApplyExtraFees(checkingAccount);
@@ -106,11 +107,9 @@ public class TransactionService implements TransactionServiceInterface {
             if (isSender(studentCheckingAccount)) {
                 checkFraud(studentCheckingAccount);
                 if (!enoughFunds(studentCheckingAccount)) {
-                    saveAccount(studentCheckingAccount);
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
+                    saveAndThrowException(studentCheckingAccount);
                 } else {
                     return studentCheckingAccount;
-
                 }
             } else {
                 return studentCheckingAccount;
@@ -126,10 +125,21 @@ public class TransactionService implements TransactionServiceInterface {
             SavingsAccount savingsAccount = (SavingsAccount) account;
             checkStatus(savingsAccount);
             checkFraud(savingsAccount);
+            if (isSender(savingsAccount)) {
+                checkFraud(savingsAccount);
+                if (!enoughFunds(savingsAccount)) {
+                    saveAndThrowException(savingsAccount);
+                }
+            }
 
 
         }
         return account;
+    }
+
+    private void saveAndThrowException(Account account) {
+        saveAccount(account);
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
     }
 
     private boolean isSender(Account account) {

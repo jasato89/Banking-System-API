@@ -35,7 +35,7 @@ public class CheckingAccount extends Account implements Penalizable {
     }
 
 
-    public CheckingAccount(@DecimalMin(value = "250", message = "Interest rate must be above 0 or 0") Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
+    public CheckingAccount(Money balance, String secretKey, @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, Money minimumBalance, Money monthlyMaintenanceFee) {
         super(balance, secretKey, accountHolder, secondaryAccountHolder);
         setMinimumBalance(minimumBalance);
         setMonthlyMaintenanceFee(monthlyMaintenanceFee);

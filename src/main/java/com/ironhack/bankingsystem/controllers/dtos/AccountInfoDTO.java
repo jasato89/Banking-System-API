@@ -16,7 +16,7 @@ public class AccountInfoDTO {
     public AccountInfoDTO() {
     }
 
-    public AccountInfoDTO(Long accountId, Money balance,  AccountHolderInformationDTO accountHolder, AccountHolderInformationDTO secondaryAccountHolder, LocalDateTime creationDate) {
+    public AccountInfoDTO(Long accountId, Money balance, AccountHolderInformationDTO accountHolder, AccountHolderInformationDTO secondaryAccountHolder, LocalDateTime creationDate) {
         this.accountId = accountId;
         this.balance = balance;
         this.accountHolder = accountHolder;
