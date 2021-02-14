@@ -7,13 +7,11 @@ import com.ironhack.bankingsystem.utils.*;
 import javax.persistence.*;
 import javax.validation.*;
 import javax.validation.constraints.*;
-import java.math.*;
 import java.time.*;
-import java.util.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
-public class CheckingAccount extends Account implements Penalizable {
+public class CheckingAccount extends Account implements Freezable, Penalizable {
     LocalDateTime maintenanceFeeLastTimeApplied;
     @Embedded
     @AttributeOverrides({

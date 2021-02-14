@@ -11,7 +11,7 @@ import javax.validation.constraints.*;
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
 @Table(name = "student_checking_account")
-public class StudentCheckingAccount extends Account implements Penalizable{
+public class StudentCheckingAccount extends Account implements Freezable {
     @Enumerated
     private Status status;
 

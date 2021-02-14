@@ -10,14 +10,16 @@ import javax.persistence.Table;
 import javax.validation.*;
 import javax.validation.constraints.*;
 import java.math.*;
+import java.time.*;
 
 @Entity
 @PrimaryKeyJoinColumn(name = "accountId")
 @Table(name = "savings_account")
-public class SavingsAccount extends Account implements Penalizable{
+public class SavingsAccount extends Account implements Freezable, Penalizable {
     private BigDecimal interestRate;
     private Money minimumBalance;
     private Status status;
+    private LocalDateTime lastInterestsApplied;
 
     public SavingsAccount() {status = Status.ACTIVE;}
 
@@ -25,7 +27,16 @@ public class SavingsAccount extends Account implements Penalizable{
         super(balance, secretKey, accountHolder, secondaryAccountHolder);
         setInterestRate(interestRate);
         setMinimumBalance(minimumBalance);
+        lastInterestsApplied = LocalDateTime.now();
 
+    }
+
+    public LocalDateTime getLastInterestsApplied() {
+        return lastInterestsApplied;
+    }
+
+    public void setLastInterestsApplied(LocalDateTime lastTimeInterestsApplied) {
+        this.lastInterestsApplied = lastTimeInterestsApplied;
     }
 
     public Money getMinimumBalance() {

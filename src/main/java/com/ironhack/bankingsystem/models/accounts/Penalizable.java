@@ -1,12 +1,15 @@
 package com.ironhack.bankingsystem.models.accounts;
 
-import com.ironhack.bankingsystem.enums.*;
+import com.ironhack.bankingsystem.models.*;
+import com.ironhack.bankingsystem.utils.*;
 
 public interface Penalizable {
 
-    Status getStatus();
-
-    void setStatus(Status status);
-
     Long getAccountId();
+
+    Money getMinimumBalance();
+
+    Money getBalance();
+
+    void setBalance(Money money);
 }
