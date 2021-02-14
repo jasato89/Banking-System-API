@@ -64,7 +64,7 @@ public class TransactionService implements TransactionServiceInterface {
         }
     }
 
-    public static CreditCard applyInterestRate(CreditCard creditCard) {
+    public CreditCard applyInterestRate(CreditCard creditCard) {
         Long monthsBetween = ChronoUnit.MONTHS.between(creditCard.getLastInterestApplied(), LocalDateTime.now());
         if (monthsBetween > 0 && creditCard.getBalance().getAmount().compareTo(BigDecimal.ZERO) > 0) {
             creditCard.setBalance(
@@ -74,13 +74,14 @@ public class TransactionService implements TransactionServiceInterface {
                                     creditCard.getInterestRate()
                                             .divide(new BigDecimal("12")))));
             creditCard.setLastInterestApplied(LocalDateTime.now());
+            creditCardRepository.save(creditCard);
 
         }
 
         return creditCard;
     }
 
-    public static SavingsAccount applyInterestRate(SavingsAccount savingsAccount) {
+    public SavingsAccount applyInterestRate(SavingsAccount savingsAccount) {
         Long yearsBetween = ChronoUnit.YEARS.between(savingsAccount.getLastInterestsApplied(), LocalDateTime.now());
         if (yearsBetween > 0 && savingsAccount.getBalance().getAmount().compareTo(savingsAccount.getMinimumBalance().getAmount()) > 0) {
             savingsAccount.setBalance(
@@ -90,6 +91,7 @@ public class TransactionService implements TransactionServiceInterface {
                                     savingsAccount.getInterestRate()
                                             )));
             savingsAccount.setLastInterestsApplied(LocalDateTime.now());
+            savingsAccountRepository.save(savingsAccount);
 
         }
 

@@ -1,7 +1,6 @@
 package com.ironhack.bankingsystem.services.impl;
 
 import com.ironhack.bankingsystem.controllers.dtos.*;
-import com.ironhack.bankingsystem.models.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
@@ -22,6 +21,8 @@ public class AccountService implements AccountServiceInterface {
 
     @Autowired
     AccountHolderRepository accountHolderRepository;
+    @Autowired
+    TransactionService transactionService;
 
     public AccountInfoDTO getAccountById(Long id) {
         if (accountRepository.findById(id).isPresent()) {
@@ -78,8 +79,9 @@ public class AccountService implements AccountServiceInterface {
 
         if (accountRepository.findById(accountId).isPresent()) {
             Account account = accountRepository.findById(accountId).get();
-            if (account instanceof CreditCard) TransactionService.applyInterestRate((CreditCard) account);
             if (account.getAccountHolder().getUsername().equals(userDetails.getUsername()) || account.getSecondaryAccountHolder().getUsername().equals(userDetails.getUsername())) {
+                if (account instanceof CreditCard) transactionService.applyInterestRate((CreditCard) account);
+                if (account instanceof SavingsAccount) transactionService.applyInterestRate((SavingsAccount) account);
                 return account.getBalance();
             } else {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permissions for this account");
