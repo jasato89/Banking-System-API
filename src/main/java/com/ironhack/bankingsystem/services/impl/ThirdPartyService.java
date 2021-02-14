@@ -85,6 +85,11 @@ public class ThirdPartyService implements ThirdPartyServiceInterface {
             ));
 
 
+        } else {
+
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not enough funds");
+
+
         }
 
     }

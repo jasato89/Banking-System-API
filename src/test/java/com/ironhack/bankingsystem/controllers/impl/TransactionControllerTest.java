@@ -1,10 +1,11 @@
-package com.ironhack.bankingsystem.repositories;
+package com.ironhack.bankingsystem.controllers.impl;
 
 import com.fasterxml.jackson.databind.*;
 import com.ironhack.bankingsystem.controllers.impl.*;
 import com.ironhack.bankingsystem.models.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.models.users.*;
+import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.utils.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -24,7 +25,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 @SpringBootTest
 public
-class TransactionServiceTest {
+class TransactionControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired

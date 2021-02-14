@@ -67,10 +67,10 @@ class ThirdPartyControllerTest {
 
     @AfterEach
     void tearDown() {
-        thirdPartyTransactionRepository.deleteAll();
+      /*  thirdPartyTransactionRepository.deleteAll();
         checkingAccountRepository.deleteAll();
         accountHolderRepository.deleteAll();
-        thirdPartyRepository.deleteAll();
+        thirdPartyRepository.deleteAll();*/
     }
 
     @Test
@@ -129,5 +129,43 @@ class ThirdPartyControllerTest {
                 .andExpect(status().isOk()).andReturn();
 
         assertEquals(new BigDecimal("490.00"), checkingAccountRepository.findAll().get(0).getBalance().getAmount());
+    }
+
+    @Test
+    void receiveMoney_appliesFees() throws Exception {
+        ThirdPartyTransactionDTO thirdPartyTransactionDTO = new ThirdPartyTransactionDTO(
+                thirdPartyRepository.findAll().get(0).getId(),
+                new BigDecimal("260"),
+                null,
+                checkingAccountRepository.findAll().get(0).getAccountId(),
+                checkingAccountRepository.findAll().get(0).getSecretKey()
+        );
+
+        MvcResult result = mockMvc.perform(post("/third-party/receive-money")
+                .header("hashedKey", "abc123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(thirdPartyTransactionDTO)))
+                .andExpect(status().isOk()).andReturn();
+
+        assertEquals(new BigDecimal("200.00"), checkingAccountRepository.findAll().get(0).getBalance().getAmount());
+    }
+
+
+    @Test
+    void receiveMoney_notEnoughFunds() throws Exception {
+        ThirdPartyTransactionDTO thirdPartyTransactionDTO = new ThirdPartyTransactionDTO(
+                thirdPartyRepository.findAll().get(0).getId(),
+                new BigDecimal("600"),
+                null,
+                checkingAccountRepository.findAll().get(0).getAccountId(),
+                checkingAccountRepository.findAll().get(0).getSecretKey()
+        );
+
+        MvcResult result = mockMvc.perform(post("/third-party/receive-money")
+                .header("hashedKey", "abc123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(thirdPartyTransactionDTO)))
+                .andExpect(status().isForbidden()).andReturn();
+
     }
 }
