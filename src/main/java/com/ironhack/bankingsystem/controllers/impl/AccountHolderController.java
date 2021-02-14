@@ -29,8 +29,5 @@ public class AccountHolderController implements AccountHolderControllerInterface
         return accountHolderService.createAccountHolder(accountHolder);
     }
 
-    @PostMapping("admin/account-holder/{id}/")
-    public AccountHolder updateDetails(@PathVariable("id") Long id, @RequestBody @Valid AccountHolder account) {
-        return accountHolderService.updateDetails(id, account);
-    }
+
 }

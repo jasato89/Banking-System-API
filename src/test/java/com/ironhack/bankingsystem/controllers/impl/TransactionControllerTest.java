@@ -104,7 +104,7 @@ class TransactionControllerTest {
     void selectSumLastHours_Work() throws Exception {
 
         Transaction transaction = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
-        transaction.setTimeStamp(LocalDateTime.now().minusHours(23));
+        transaction.setTimeStamp(LocalDateTime.now().minusHours(22));
         Transaction transaction2 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));
         transaction2.setTimeStamp(LocalDateTime.now().minusHours(2));
         Transaction transaction3 = new Transaction(checkingAccountRepository.findAll().get(0), checkingAccountRepository.findAll().get(1), new Money(new BigDecimal("10")));

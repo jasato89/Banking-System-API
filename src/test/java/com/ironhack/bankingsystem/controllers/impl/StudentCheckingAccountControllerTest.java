@@ -94,7 +94,5 @@ class StudentCheckingAccountControllerTest {
     }
 
 
-    @Test
-    void updateStudentCheckingAccount() {
-    }
+
 }
