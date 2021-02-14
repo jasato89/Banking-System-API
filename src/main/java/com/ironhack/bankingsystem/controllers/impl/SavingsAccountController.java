@@ -1,5 +1,6 @@
 package com.ironhack.bankingsystem.controllers.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.controllers.interfaces.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
@@ -26,7 +27,7 @@ public class SavingsAccountController implements SavingsAccountControllerInterfa
     @PostMapping("/admin/savings-account/new")
 
     @ResponseStatus(HttpStatus.CREATED)
-    public SavingsAccount createSavingsAccount(@RequestBody @Valid SavingsAccount savingsAccount) {
+    public SavingsAccount createSavingsAccount(@RequestBody @Valid SavingsAccountDTO savingsAccount) {
         return savingsAccountService.createSavingsAccount(savingsAccount);
     }
 

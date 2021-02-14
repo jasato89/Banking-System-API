@@ -15,29 +15,25 @@ import java.math.*;
 @PrimaryKeyJoinColumn(name = "accountId")
 @Table(name = "savings_account")
 public class SavingsAccount extends Account implements Penalizable{
-    @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5")
-    @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0")
     private BigDecimal interestRate;
-    @DecimalMax(value = "1000", message = "Minimum balance must be below 0.5")
-    @DecimalMin(value = "100", message = "Minimum balance must be above 0 or 0")
-    private BigDecimal minimumBalance;
+    private Money minimumBalance;
     private Status status;
 
     public SavingsAccount() {status = Status.ACTIVE;}
 
-    public SavingsAccount(Money balance, String secretKey,  @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5") @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0") BigDecimal interestRate, BigDecimal minimumBalance) {
+    public SavingsAccount(Money balance, String secretKey,  @NotNull @Valid AccountHolder accountHolder, @Valid AccountHolder secondaryAccountHolder, @DecimalMax(value = "0.5", message = "Interest rate must be below 0.5") @DecimalMin(value = "0", message = "Interest rate must be above 0 or 0") BigDecimal interestRate, Money minimumBalance) {
         super(balance, secretKey, accountHolder, secondaryAccountHolder);
         setInterestRate(interestRate);
         setMinimumBalance(minimumBalance);
 
     }
 
-    public BigDecimal getMinimumBalance() {
+    public Money getMinimumBalance() {
         return minimumBalance;
     }
 
-    public void setMinimumBalance(BigDecimal minimumBalance) {
-        this.minimumBalance = minimumBalance == null ? Constants.SAVINGS_ACC_DEFAULT_MIN_BALANCE : minimumBalance;
+    public void setMinimumBalance(Money minimumBalance) {
+        this.minimumBalance = minimumBalance == null ? new Money(Constants.SAVINGS_ACC_DEFAULT_MIN_BALANCE) : minimumBalance;
     }
 
     public BigDecimal getInterestRate() {

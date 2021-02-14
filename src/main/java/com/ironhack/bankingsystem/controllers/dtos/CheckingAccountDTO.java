@@ -26,14 +26,11 @@ public class CheckingAccountDTO {
 
     public CheckingAccountDTO(@NotNull @DecimalMin("0") BigDecimal balance, Currency currency, String secretKey, @NotNull Long accountHolderId, Long secondaryAccountHolderId) {
         this.balance = balance;
-        this.currency = currency;
+        setCurrency(currency);
         this.secretKey = secretKey;
         this.accountHolderId = accountHolderId;
         this.secondaryAccountHolderId = secondaryAccountHolderId;
-        /*
-        this.minimumBalance = minimumBalance == null ? Constants.CHECKING_ACC_MIN_BALANCE : minimumBalance;
-        this.monthlyMaintenanceFee = monthlyMaintenanceFee == null ? Constants.CHECKING_ACC_DEFFAULT_MONTHLY_FEE : monthlyMaintenanceFee;
-        */
+
     }
 
 
@@ -59,7 +56,7 @@ public class CheckingAccountDTO {
     }
 
     public void setCurrency(Currency currency) {
-        this.currency = currency;
+        this.currency =  currency == null ?  Currency.getInstance("USD") : currency;
     }
 
     public Long getAccountHolderId() {

@@ -1,10 +1,5 @@
 package com.ironhack.bankingsystem.controllers.dtos;
 
-import com.ironhack.bankingsystem.models.users.*;
-import net.bytebuddy.implementation.bind.annotation.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.boot.context.properties.bind.*;
-
 import javax.validation.*;
 import javax.validation.constraints.*;
 import java.math.*;
@@ -25,18 +20,18 @@ public class CreditCardDTO {
     private String secretKey;
     @NotNull
     @Valid
-    private AccountHolder accountHolder;
+    private Long accountHolderId;
     @Valid
-    private AccountHolder secondaryAccountHolder;
+    private Long secondaryAccountHolderId;
 
-    public CreditCardDTO(@Valid Currency currency, @DecimalMax(value = "10000", message = "Max credit limit must be below 10000") @DecimalMin(value = "100", message = "Min credit limit must be above 100") BigDecimal creditLimit, @DecimalMax(value = "0.2", message = "Max interest rate must be below 0.2") @DecimalMin(value = "0.1", message = "Min interest rate must be above 0.1") BigDecimal interestRate, @NotNull @DecimalMin(value = "0", message = "Minimum Balance must be zero or above zero") BigDecimal balance, @NotNull String secretKey, @NotNull @Valid AccountHolder accountHolder, AccountHolder secondaryAccountHolder) {
-        this.currency = currency;
+    public CreditCardDTO(@Valid Currency currency, @DecimalMax(value = "10000", message = "Max credit limit must be below 10000") @DecimalMin(value = "100", message = "Min credit limit must be above 100") BigDecimal creditLimit, @DecimalMax(value = "0.2", message = "Max interest rate must be below 0.2") @DecimalMin(value = "0.1", message = "Min interest rate must be above 0.1") BigDecimal interestRate, @NotNull @DecimalMin(value = "0", message = "Minimum Balance must be zero or above zero") BigDecimal balance, @NotNull String secretKey, @NotNull @Valid Long accountHolder, Long secondaryAccountHolder) {
+        this.currency = currency == null ? Currency.getInstance("USD") : currency;
         this.creditLimit = creditLimit == null?  new BigDecimal("100") : creditLimit;;
         this.interestRate = interestRate == null?  new BigDecimal("0.1") : interestRate;
         this.balance = balance;
         this.secretKey = secretKey;
-        this.accountHolder = accountHolder;
-        this.secondaryAccountHolder = secondaryAccountHolder;
+        this.accountHolderId = accountHolder;
+        this.secondaryAccountHolderId = secondaryAccountHolder;
     }
 
     public Currency getCurrency() {
@@ -47,12 +42,12 @@ public class CreditCardDTO {
         this.currency = currency;
     }
 
-    public AccountHolder getSecondaryAccountHolder() {
-        return secondaryAccountHolder;
+    public Long getSecondaryAccountHolderId() {
+        return secondaryAccountHolderId;
     }
 
-    public void setSecondaryAccountHolder(AccountHolder secondaryAccountHolder) {
-        this.secondaryAccountHolder = secondaryAccountHolder;
+    public void setSecondaryAccountHolderId(Long secondaryAccountHolderId) {
+        this.secondaryAccountHolderId = secondaryAccountHolderId;
     }
 
     public BigDecimal getCreditLimit() {
@@ -87,12 +82,12 @@ public class CreditCardDTO {
         this.secretKey = secretKey;
     }
 
-    public AccountHolder getAccountHolder() {
-        return accountHolder;
+    public Long getAccountHolderId() {
+        return accountHolderId;
     }
 
-    public void setAccountHolder(AccountHolder accountHolder) {
-        this.accountHolder = accountHolder;
+    public void setAccountHolderId(Long accountHolderId) {
+        this.accountHolderId = accountHolderId;
     }
 }
 

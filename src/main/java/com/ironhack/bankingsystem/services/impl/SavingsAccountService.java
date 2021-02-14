@@ -1,10 +1,14 @@
 package com.ironhack.bankingsystem.services.impl;
 
+import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.models.accounts.*;
 import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
+import com.ironhack.bankingsystem.utils.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
@@ -16,14 +20,23 @@ public class SavingsAccountService implements SavingsAccountServiceInterface {
     @Autowired
     SavingsAccountRepository savingsAccountRepository;
 
-    public SavingsAccount createSavingsAccount(SavingsAccount savingsAccount) {
+    @Autowired
+    UserRetrieveService userRetrieveService;
 
-        if (savingsAccountRepository.findById(savingsAccount.getAccountId()).isPresent()) {
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Savings Account with id " + savingsAccount.getAccountId() + " already exists in the database");
-        } else {
-            return savingsAccountRepository.save(savingsAccount);
-        }
+    public SavingsAccount createSavingsAccount(SavingsAccountDTO savingsAccountDTO) {
+
+            return savingsAccountRepository.save(new SavingsAccount(
+                    new Money(savingsAccountDTO.getBalance(), savingsAccountDTO.getCurrency()),
+                    passwordEncoder.encode(savingsAccountDTO.getSecretKey()),
+                    userRetrieveService.retrieveUser(savingsAccountDTO.getAccountHolderId()),
+                    savingsAccountDTO.getSecondaryAccountHolderId() == null ? null : userRetrieveService.retrieveUser(savingsAccountDTO.getSecondaryAccountHolderId()),
+                    savingsAccountDTO.getInterestRate(),
+                    new Money(savingsAccountDTO.getMinimumBalance(), savingsAccountDTO.getCurrency())
+
+            ));
+
     }
 
     public SavingsAccount updateSavingsAccount(Long id, SavingsAccount savingsAccount) {
@@ -35,7 +48,6 @@ public class SavingsAccountService implements SavingsAccountServiceInterface {
 
         }
     }
-
 
     public List<SavingsAccount> getAllSavingsAccounts() {
         return savingsAccountRepository.findAll();

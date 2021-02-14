@@ -27,37 +27,19 @@ public class CheckingAccountService implements CheckingAccountServiceInterface {
     StudentCheckingAccountRepository studentCheckingAccountRepository;
 
     @Autowired
-    AccountHolderRepository accountHolderRepository;
+    UserRetrieveService userRetrieveService;
 
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Account createCheckingAccount(CheckingAccountDTO checkingAccountDTO) {
 
-        AccountHolder accountHolder;
-        AccountHolder secondaryAccountHolder = null;
+        CheckingAccount checkingAccount = new CheckingAccount(
+                new Money(checkingAccountDTO.getBalance(), checkingAccountDTO.getCurrency()),
+                passwordEncoder.encode(checkingAccountDTO.getSecretKey()),
+                userRetrieveService.retrieveUser(checkingAccountDTO.getAccountHolderId()),
+                checkingAccountDTO.getSecondaryAccountHolderId() == null ? null : userRetrieveService.retrieveUser(checkingAccountDTO.getSecondaryAccountHolderId()));
 
-
-        if (checkingAccountDTO.getCurrency() == null) {
-            checkingAccountDTO.setCurrency(Currency.getInstance("USD"));
-        }
-        if (!accountHolderRepository.findById(checkingAccountDTO.getAccountHolderId()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Checking account with id " + checkingAccountDTO.getAccountHolderId() + " doesn't in the database");
-        } else {
-            accountHolder = accountHolderRepository.findById(checkingAccountDTO.getAccountHolderId()).get();
-        }
-
-        if (checkingAccountDTO.getSecondaryAccountHolderId() != null) {
-            if (!accountHolderRepository.findById(checkingAccountDTO.getSecondaryAccountHolderId()).isPresent()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Checking account with id " + checkingAccountDTO.getSecondaryAccountHolderId() + " doesn't in the database");
-            } else {
-                secondaryAccountHolder = accountHolderRepository.findById(checkingAccountDTO.getSecondaryAccountHolderId()).get();
-
-            }
-
-        }
-
-        CheckingAccount checkingAccount = new CheckingAccount(new Money(checkingAccountDTO.getBalance(), checkingAccountDTO.getCurrency()), passwordEncoder.encode(checkingAccountDTO.getSecretKey()),  accountHolder, secondaryAccountHolder);
         if (ChronoUnit.YEARS.between(checkingAccount.getAccountHolder().getDateOfBirth(), LocalDateTime.now()) < 24) {
             StudentCheckingAccount studentCheckingAccount = new StudentCheckingAccount(checkingAccount.getBalance(), checkingAccount.getSecretKey(), checkingAccount.getAccountHolder(), checkingAccount.getSecondaryAccountHolder());
             return studentCheckingAccountRepository.save(studentCheckingAccount);

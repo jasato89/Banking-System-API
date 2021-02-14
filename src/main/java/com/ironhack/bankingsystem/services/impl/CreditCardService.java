@@ -2,6 +2,7 @@ package com.ironhack.bankingsystem.services.impl;
 
 import com.ironhack.bankingsystem.controllers.dtos.*;
 import com.ironhack.bankingsystem.models.accounts.*;
+import com.ironhack.bankingsystem.models.users.*;
 import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
 import com.ironhack.bankingsystem.utils.*;
@@ -17,10 +18,20 @@ public class CreditCardService implements CreditCardServiceInterface {
     @Autowired
     CreditCardRepository creditCardRepository;
 
-    public CreditCard createCreditCardAccount(CreditCardDTO creditCard) {
+    @Autowired
+    UserRetrieveService userRetrieveService;
 
-       return creditCardRepository.save(
-               new CreditCard(new Money(creditCard.getBalance()), creditCard.getSecretKey(), creditCard.getAccountHolder(), creditCard.getSecondaryAccountHolder(), new Money(creditCard.getCreditLimit()), creditCard.getInterestRate()));
+
+    public CreditCard createCreditCardAccount(CreditCardDTO creditCardDTO) {
+
+        return creditCardRepository.save(
+                new CreditCard(
+                        new Money(creditCardDTO.getBalance()),
+                        creditCardDTO.getSecretKey(),
+                        userRetrieveService.retrieveUser(creditCardDTO.getAccountHolderId()),
+                        creditCardDTO.getSecondaryAccountHolderId() == null ? null : userRetrieveService.retrieveUser(creditCardDTO.getSecondaryAccountHolderId()),
+                        new Money(creditCardDTO.getCreditLimit()),
+                        creditCardDTO.getInterestRate()));
     }
 
     public CreditCard updateCreditCardAccount(Long id, CreditCard creditCard) {

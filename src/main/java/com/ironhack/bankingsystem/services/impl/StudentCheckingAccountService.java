@@ -21,31 +21,18 @@ public class StudentCheckingAccountService implements StudentCheckingAccountServ
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
-    AccountHolderRepository accountHolderRepository;
-
+    UserRetrieveService userRetrieveService;
     @Autowired
     StudentCheckingAccountRepository studentCheckingAccountRepository;
 
     public StudentCheckingAccount createStudentCheckingAccount(CheckingAccountDTO checkingAccountDTO) {
 
-        AccountHolder accountHolder;
-        AccountHolder secondaryAccountHolder = null;
-
-        if (accountHolderRepository.findById(checkingAccountDTO.getAccountHolderId()).isPresent()) {
-            accountHolder = accountHolderRepository.findById(checkingAccountDTO.getAccountHolderId()).get();
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "AccountHolder with id " + checkingAccountDTO.getAccountHolderId() + " doesn't exist in the database");
-        }
-
-        if (checkingAccountDTO.getSecondaryAccountHolderId() != null && accountHolderRepository.findById(checkingAccountDTO.getSecondaryAccountHolderId()).isPresent()) {
-            secondaryAccountHolder = accountHolderRepository.findById(checkingAccountDTO.getSecondaryAccountHolderId()).get();
-        }
 
         StudentCheckingAccount studentCheckingAccount = new StudentCheckingAccount(
                 new Money(checkingAccountDTO.getBalance(), checkingAccountDTO.getCurrency()),
                 passwordEncoder.encode(checkingAccountDTO.getSecretKey()),
-                accountHolder,
-                secondaryAccountHolder);
+                userRetrieveService.retrieveUser(checkingAccountDTO.getAccountHolderId()),
+                checkingAccountDTO.getSecondaryAccountHolderId() == null ? null : userRetrieveService.retrieveUser(checkingAccountDTO.getSecondaryAccountHolderId()));
 
         return studentCheckingAccountRepository.save(studentCheckingAccount);
 
