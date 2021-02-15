@@ -6,6 +6,8 @@ import com.ironhack.bankingsystem.repositories.*;
 import com.ironhack.bankingsystem.services.interfaces.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.server.*;
 
@@ -18,6 +20,8 @@ public class AccountHolderService implements AccountHolderServiceInterface {
 
     @Autowired
     AccountHolderRepository accountHolderRepository;
+
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public List<AccountHolderInformationDTO> getAllAccountHolders() {
 
@@ -53,7 +57,7 @@ public class AccountHolderService implements AccountHolderServiceInterface {
         } else {
             return accountHolderRepository.save(new AccountHolder(
                     accountHolder.getUsername(),
-                    accountHolder.getPassword(),
+                    passwordEncoder.encode(accountHolder.getPassword()),
                     accountHolder.getName(),
                     localDateTime,
                     accountHolder.getPrimaryAddress(),
