@@ -63,47 +63,12 @@ public class TransactionService implements TransactionServiceInterface {
         }
     }
 
-    public CreditCard applyInterestRate(CreditCard creditCard) {
-        Long monthsBetween = ChronoUnit.MONTHS.between(creditCard.getLastInterestApplied(), LocalDateTime.now());
-        if (monthsBetween > 0 && creditCard.getBalance().getAmount().compareTo(BigDecimal.ZERO) > 0) {
-            creditCard.setBalance(
-                    new Money(creditCard.getBalance().getAmount()
-                            .multiply(new BigDecimal(monthsBetween))
-                            .multiply(
-                                    creditCard.getInterestRate()
-                                            .divide(new BigDecimal("12")))));
-            creditCard.setLastInterestApplied(LocalDateTime.now());
-            creditCardRepository.save(creditCard);
-
-        }
-
-        return creditCard;
+    private boolean accountsArePresent(TransactionDTO transactionDTO) {
+        return accountRepository.findById(transactionDTO.getSenderAccountId()).isPresent()
+                && accountRepository.findById(transactionDTO.getRecipientAccountId()).isPresent();
     }
 
-    public SavingsAccount applyInterestRate(SavingsAccount savingsAccount) {
-        Long yearsBetween = ChronoUnit.YEARS.between(savingsAccount.getLastInterestsApplied(), LocalDateTime.now());
-        if (yearsBetween > 0 && savingsAccount.getBalance().getAmount().compareTo(savingsAccount.getMinimumBalance().getAmount()) > 0) {
-            savingsAccount.setBalance(
-                    new Money(savingsAccount.getBalance().getAmount()
-                            .multiply(new BigDecimal(yearsBetween))
-                            .multiply(
-                                    savingsAccount.getInterestRate()
-                            )));
-            savingsAccount.setLastInterestsApplied(LocalDateTime.now());
-            savingsAccountRepository.save(savingsAccount);
-
-        }
-
-        return savingsAccount;
-    }
-
-
-    private void makeTransaction(TransactionDTO transactionDTO, Account senderAccount, Account recipientAccount) {
-        senderAccount.setBalance(new Money(senderAccount.getBalance().getAmount().subtract(transactionDTO.getTransactionAmount().getAmount()), senderAccount.getBalance().getCurrency()));
-        recipientAccount.setBalance(new Money(recipientAccount.getBalance().getAmount().add(transactionDTO.getTransactionAmount().getAmount()), recipientAccount.getBalance().getCurrency()));
-        transactionRepository.save(new Transaction(senderAccount, recipientAccount, transactionDTO.getTransactionAmount()));
-    }
-
+    //This method takes the accounts in the transaction, checks its status if needed, checks possible fraud and if they have enough funds and returns the account
     private Account evaluateAccounts(Account account, TransactionDTO transactionDTO) {
 
         if (account instanceof CheckingAccount) {
@@ -157,22 +122,91 @@ public class TransactionService implements TransactionServiceInterface {
         return account;
     }
 
-    private void saveAndThrowException(Account account) {
-        saveAccount(account);
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
+    public CreditCard applyInterestRate(CreditCard creditCard) {
+        Long monthsBetween = ChronoUnit.MONTHS.between(creditCard.getLastInterestApplied(), LocalDateTime.now());
+        if (monthsBetween > 0 && creditCard.getBalance().getAmount().compareTo(BigDecimal.ZERO) > 0) {
+            creditCard.setBalance(
+                    new Money(creditCard.getBalance().getAmount()
+                            .multiply(new BigDecimal(monthsBetween))
+                            .multiply(
+                                    creditCard.getInterestRate()
+                                            .divide(new BigDecimal("12")))));
+            creditCard.setLastInterestApplied(LocalDateTime.now());
+            creditCardRepository.save(creditCard);
+
+        }
+
+        return creditCard;
     }
 
+    public SavingsAccount applyInterestRate(SavingsAccount savingsAccount) {
+        Long yearsBetween = ChronoUnit.YEARS.between(savingsAccount.getLastInterestsApplied(), LocalDateTime.now());
+        if (yearsBetween > 0 && savingsAccount.getBalance().getAmount().compareTo(savingsAccount.getMinimumBalance().getAmount()) > 0) {
+            savingsAccount.setBalance(
+                    new Money(savingsAccount.getBalance().getAmount()
+                            .multiply(new BigDecimal(yearsBetween))
+                            .multiply(
+                                    savingsAccount.getInterestRate()
+                            )));
+            savingsAccount.setLastInterestsApplied(LocalDateTime.now());
+            savingsAccountRepository.save(savingsAccount);
+
+        }
+
+        return savingsAccount;
+    }
+
+
+    private void makeTransaction(TransactionDTO transactionDTO, Account senderAccount, Account recipientAccount) {
+        senderAccount.setBalance(new Money(senderAccount.getBalance().getAmount().subtract(transactionDTO.getTransactionAmount().getAmount()), senderAccount.getBalance().getCurrency()));
+        recipientAccount.setBalance(new Money(recipientAccount.getBalance().getAmount().add(transactionDTO.getTransactionAmount().getAmount()), recipientAccount.getBalance().getCurrency()));
+        transactionRepository.save(new Transaction(senderAccount, recipientAccount, transactionDTO.getTransactionAmount()));
+    }
+
+
+    //Determines if the account given is making the transaction
     private boolean isSender(Account account, TransactionDTO transactionDTO) {
         return account.getAccountId().equals(transactionDTO.getSenderAccountId());
+    }
+
+  //This method only takes accounts that have Status and evaluates if there has been fraud
+    public void checkFraud(Freezable senderAccount) {
+        //Retrieves the last transaction made in the last second (if exists)
+        if (transactionRepository.findTransactionBySenderAndTimeStampBetween((Account) senderAccount, LocalDateTime.now().minusSeconds(1), LocalDateTime.now()).isPresent()) {
+            senderAccount.setStatus(Status.FROZEN);
+            saveAccount((Account) senderAccount);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: Your account is now frozen due to a potential fraud detected");
+        }
+
+        if (transactionRepository.getMaxByDay(senderAccount.getAccountId()).isPresent() && transactionRepository.getSumLastTransactions(senderAccount.getAccountId()).isPresent()) {
+
+        //Compares the max sum of transactions in any day to the sum of the transactions in the last 24 hours
+            BigDecimal getMaxByDay = transactionRepository.getMaxByDay(senderAccount.getAccountId()).get().multiply(new BigDecimal("1.5"));
+            BigDecimal getLastDay = transactionRepository.getSumLastTransactions(senderAccount.getAccountId()).get();
+
+            if (getMaxByDay.compareTo(getLastDay) < 0) {
+
+                senderAccount.setStatus(Status.FROZEN);
+                saveAccount((Account) senderAccount);
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: Your account is now frozen due to a potential fraud detected");
+            }
+
+        }
 
     }
 
+    //Overridden method that applies only to credit cards. It only evaluates if there was a transaction in the last second
     private void checkFraud(CreditCard creditCard) {
         if (transactionRepository.findTransactionBySenderAndTimeStampBetween((Account) creditCard, LocalDateTime.now().minusSeconds(1), LocalDateTime.now()).isPresent()) {
             saveAccount(creditCard);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: You cannot transfer money now due to a potential fraud detected");
 
         }
+    }
+
+    private void saveAndThrowException(Account account) {
+        saveAccount(account);
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Sorry, but the account you are trying to transfer funds from does not have enough funds to perform this transaction");
     }
 
     private void checkBalanceAndApplyExtraFees(Penalizable account, TransactionDTO transactionDTO) {
@@ -240,28 +274,6 @@ public class TransactionService implements TransactionServiceInterface {
     }
 
 
-    public void checkFraud(Freezable senderAccount) {
-        if (transactionRepository.findTransactionBySenderAndTimeStampBetween((Account) senderAccount, LocalDateTime.now().minusSeconds(1), LocalDateTime.now()).isPresent()) {
-            senderAccount.setStatus(Status.FROZEN);
-            saveAccount((Account) senderAccount);
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: Your account is now frozen due to a potential fraud detected");
-        }
-
-        if (transactionRepository.getMaxByDay(senderAccount.getAccountId()).isPresent() && transactionRepository.getSumLastTransactions(senderAccount.getAccountId()).isPresent()) {
-
-            BigDecimal getMaxByDay = transactionRepository.getMaxByDay(senderAccount.getAccountId()).get().multiply(new BigDecimal("1.5"));
-            BigDecimal getLastDay = transactionRepository.getSumLastTransactions(senderAccount.getAccountId()).get();
-
-            if (getMaxByDay.compareTo(getLastDay) < 0) {
-
-                senderAccount.setStatus(Status.FROZEN);
-                saveAccount((Account) senderAccount);
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Transaction rejected: Your account is now frozen due to a potential fraud detected");
-            }
-
-        }
-
-    }
 
     private void saveAccount(Account account) {
         if (account instanceof CheckingAccount) {
@@ -285,10 +297,7 @@ public class TransactionService implements TransactionServiceInterface {
         return accountRepository.findById(transactionDTO.getSenderAccountId()).get();
     }
 
-    private boolean accountsArePresent(TransactionDTO transactionDTO) {
-        return accountRepository.findById(transactionDTO.getSenderAccountId()).isPresent()
-                && accountRepository.findById(transactionDTO.getRecipientAccountId()).isPresent();
-    }
+
 
     private boolean accountHasPermissions(Account senderAccount, UserDetails userDetails) {
 
